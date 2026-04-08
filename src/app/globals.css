@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* UVA Brand Colors */
+  --color-uva-navy: #232D4B;
+  --color-uva-navy-dark: #1a2238;
+  --color-uva-navy-light: #2e3d65;
+  --color-uva-orange: #E57200;
+  --color-uva-orange-dark: #c96400;
+  --color-uva-orange-light: #f08020;
+
+  /* Neutrals */
+  --color-background: #F8F7F4;
+  --color-surface: #ffffff;
+  --color-border: #e2e0db;
+  --color-muted: #6b7280;
+  --color-foreground: #1a1a1a;
+
+  /* shadcn/ui mappings */
+  --color-primary: var(--color-uva-navy);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f0ec;
+  --color-secondary-foreground: var(--color-uva-navy);
+  --color-accent: var(--color-uva-orange);
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-ring: var(--color-uva-navy);
+  --color-input: var(--color-border);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-foreground);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-foreground);
+  --color-muted-foreground: var(--color-muted);
+
+  --radius: 0.5rem;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* CSS variable aliases for shadcn compatibility */
+:root {
+  --background: #F8F7F4;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #232D4B;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f0ec;
+  --secondary-foreground: #232D4B;
+  --muted: #f1f0ec;
+  --muted-foreground: #6b7280;
+  --accent: #E57200;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e2e0db;
+  --input: #e2e0db;
+  --ring: #232D4B;
+  --radius: 0.5rem;
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
