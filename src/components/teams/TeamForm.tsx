@@ -34,7 +34,7 @@ export function TeamForm({ mode, defaultValues, onSubmit }: TeamFormProps) {
     },
   })
 
-  const selectedSkills = watch('skills_needed') ?? []
+  const selectedSkills = (watch('skills_needed') ?? []) as string[]
 
   function toggleSkill(skill: string) {
     if (selectedSkills.includes(skill)) {
@@ -154,7 +154,7 @@ export function TeamForm({ mode, defaultValues, onSubmit }: TeamFormProps) {
             min={1}
             max={20}
             className={inputClass}
-            {...register('spots_available')}
+            {...register('spots_available', { valueAsNumber: true })}
           />
           {errors.spots_available && <p className="text-xs text-red-600 mt-1">{errors.spots_available.message}</p>}
         </div>

@@ -21,8 +21,8 @@ export const teamSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(150),
   description: z.string().min(10, 'Description must be at least 10 characters').max(3000),
   type: z.enum(['case_competition', 'startup', 'project', 'study_group', 'research', 'other'], { error: 'Please select a type' }),
-  skills_needed: z.array(z.string()).max(10).default([]),
-  spots_available: z.coerce.number().min(1).max(20).default(1),
+  skills_needed: z.array(z.string()).max(10).optional(),
+  spots_available: z.number().min(1).max(20),
   deadline: z.string().optional(),
   contact_email: z.string().email('Invalid email').endsWith('@virginia.edu', 'Must be a @virginia.edu email'),
 })
