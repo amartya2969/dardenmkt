@@ -70,16 +70,24 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
         </label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            id="email"
-            type="email"
-            placeholder="computing@virginia.edu"
-            className="w-full pl-9 pr-4 h-11 rounded-lg border border-gray-200 text-sm outline-none focus:ring-2 transition-all"
-            style={{ ['--tw-ring-color' as string]: '#232D4B' }}
-            onFocus={(e) => e.target.style.borderColor = '#232D4B'}
-            onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-            {...register('email')}
-          />
+          {(() => {
+            const { onBlur: rhfBlur, ...rest } = register('email')
+            return (
+              <input
+                id="email"
+                type="email"
+                placeholder="computing@virginia.edu"
+                className="w-full pl-9 pr-4 h-11 rounded-lg border border-gray-200 text-sm outline-none focus:ring-2 transition-all"
+                style={{ ['--tw-ring-color' as string]: '#232D4B' }}
+                onFocus={(e) => (e.target.style.borderColor = '#232D4B')}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e5e7eb'
+                  rhfBlur(e)
+                }}
+                {...rest}
+              />
+            )
+          })()}
         </div>
         {errors.email && (
           <p className="text-xs text-red-600">{errors.email.message}</p>
