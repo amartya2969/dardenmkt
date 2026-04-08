@@ -29,7 +29,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
   const supabase = await createClient()
 
   const [{ data: listing }, { data: { user } }] = await Promise.all([
-    supabase.from('listings').select('*, profiles(full_name, email)').eq('id', id).single(),
+    supabase.from('listings').select('*, profiles!listings_user_id_fkey(full_name, email)').eq('id', id).single(),
     supabase.auth.getUser(),
   ])
 

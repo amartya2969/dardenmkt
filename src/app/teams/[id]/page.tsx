@@ -20,7 +20,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
   const supabase = await createClient()
 
   const [{ data: team }, { data: { user } }] = await Promise.all([
-    supabase.from('teams').select('*, profiles(full_name, email)').eq('id', id).single(),
+    supabase.from('teams').select('*, profiles!teams_user_id_fkey(full_name, email)').eq('id', id).single(),
     supabase.auth.getUser(),
   ])
 
