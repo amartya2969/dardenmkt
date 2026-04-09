@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, Plus, User2, LogOut, LayoutList, ChevronDown } from 'lucide-react'
+import { Menu, Plus, User2, LogOut, LayoutList, ChevronDown, Settings } from 'lucide-react'
 import { CATEGORIES } from '@/lib/constants'
 
 export function Navbar() {
@@ -111,6 +111,11 @@ export function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link href="/my-listings" className="gap-2 flex items-center">
                         <LayoutList className="h-4 w-4" /> My Listings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="gap-2 flex items-center">
+                        <Settings className="h-4 w-4" /> Edit Profile
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="sm:hidden">

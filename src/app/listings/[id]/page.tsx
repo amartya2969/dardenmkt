@@ -11,6 +11,7 @@ import { MapPin, Clock, Mail, ArrowLeft, Pencil } from 'lucide-react'
 import type { Listing } from '@/types'
 import type { Metadata } from 'next'
 import { DeleteListingButton } from './DeleteListingButton'
+import { CopyEmailButton } from '@/components/CopyEmailButton'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -118,12 +119,16 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
 
             <Separator />
 
-            {/* CTA */}
-            <Button asChild className="w-full" size="lg">
-              <a href={`mailto:${l.contact_email}?subject=Re: ${encodeURIComponent(l.title)}`}>
-                <Mail className="h-4 w-4 mr-2" /> Contact Seller
-              </a>
-            </Button>
+            {/* CTA — gated behind sign-in */}
+            {user ? (
+              <CopyEmailButton email={l.contact_email} label="Copy Seller Email" />
+            ) : (
+              <Button asChild className="w-full" size="lg" style={{ backgroundColor: '#E57200', border: 'none' }}>
+                <Link href={`/auth/login`}>
+                  <Mail className="h-4 w-4 mr-2" /> Sign In to Contact
+                </Link>
+              </Button>
+            )}
 
             {/* Owner actions */}
             {isOwner && (

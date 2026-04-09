@@ -6,6 +6,7 @@ import { TEAM_TYPE_MAP } from '@/lib/constants'
 import { ArrowLeft, Users, Calendar, Mail, Clock, Pencil } from 'lucide-react'
 import type { Team } from '@/types'
 import type { Metadata } from 'next'
+import { CopyEmailButton } from '@/components/CopyEmailButton'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -122,14 +123,17 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             <div className="pt-2 border-t border-gray-100">
-              <a
-                href={`mailto:${t.contact_email}?subject=Interested in: ${encodeURIComponent(t.title)}`}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white text-sm transition-all hover:opacity-90"
-                style={{ backgroundColor: '#E57200' }}
-              >
-                <Mail className="h-4 w-4" /> Express Interest
-              </a>
-              <p className="text-xs text-center text-gray-400 mt-2">{t.contact_email}</p>
+              {user ? (
+                <CopyEmailButton email={t.contact_email} label="Copy Contact Email" />
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white text-sm transition-all hover:opacity-90"
+                  style={{ backgroundColor: '#E57200' }}
+                >
+                  <Mail className="h-4 w-4" /> Sign In to Contact
+                </Link>
+              )}
             </div>
 
             {isOwner && (

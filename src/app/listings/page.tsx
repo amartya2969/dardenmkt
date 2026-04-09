@@ -15,7 +15,8 @@ async function Listings({ filters }: { filters: ListingFilters }) {
     .eq('status', 'active')
 
   if (filters.q) {
-    query = query.textSearch('search_vector', filters.q, { type: 'websearch' })
+    const term = `%${filters.q}%`
+    query = query.or(`title.ilike.${term},description.ilike.${term}`)
   }
   if (filters.category) query = query.eq('category', filters.category)
   if (filters.subcategory) query = query.eq('subcategory', filters.subcategory)

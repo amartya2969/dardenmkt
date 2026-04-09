@@ -61,7 +61,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
                 className="text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{ backgroundColor: bg, color }}
               >
-                {cat.label}
+                {listing.category === 'lost-found' && listing.subcategory
+                  ? listing.subcategory
+                  : cat.label}
               </span>
             </div>
           )}
