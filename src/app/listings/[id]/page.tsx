@@ -112,10 +112,8 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
 
               <div className="h-px bg-gray-100" />
 
-              {/* CTA — gated behind sign-in */}
-              {user ? (
-                <ContactForm listingId={l.id} listingTitle={l.title} />
-              ) : (
+              {/* CTA — gated behind sign-in, hidden for owner */}
+              {!user ? (
                 <div className="space-y-2">
                   <div className="rounded-xl bg-gray-50 border border-dashed border-gray-200 px-4 py-3 flex items-center gap-2 text-sm text-gray-500">
                     <Lock className="h-4 w-4 shrink-0 text-gray-400" />
@@ -124,6 +122,12 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
                   <Button asChild className="w-full font-semibold" style={{ backgroundColor: '#E57200', border: 'none', color: '#fff' }}>
                     <Link href="/auth/login">Sign In to Contact</Link>
                   </Button>
+                </div>
+              ) : !isOwner ? (
+                <ContactForm listingId={l.id} listingTitle={l.title} />
+              ) : (
+                <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-blue-700 text-center">
+                  This is your listing
                 </div>
               )}
 

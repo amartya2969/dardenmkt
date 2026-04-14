@@ -12,6 +12,7 @@ export function ContactForm({ listingId, listingTitle }: ContactFormProps) {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -23,9 +24,15 @@ export function ContactForm({ listingId, listingTitle }: ContactFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ listingId, message }),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setErrorMsg(data.error ?? 'Something went wrong.')
+        setStatus('error')
+        return
+      }
       setStatus('sent')
     } catch {
+      setErrorMsg('Network error. Please try again.')
       setStatus('error')
     }
   }
@@ -77,7 +84,7 @@ export function ContactForm({ listingId, listingTitle }: ContactFormProps) {
         </button>
       </div>
       {status === 'error' && (
-        <p className="text-xs text-red-500">Failed to send. Please try again.</p>
+        <p className="text-xs text-red-500">{errorMsg || 'Failed to send. Please try again.'}</p>
       )}
       <button
         type="submit"
