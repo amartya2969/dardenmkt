@@ -12,6 +12,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   rideshare:  '#D97706',
   services:   '#9333EA',
   community:  '#E11D48',
+  events:     '#0D9488',
   'lost-found': '#0284C7',
 }
 
@@ -22,12 +23,13 @@ const CATEGORY_BG: Record<string, string> = {
   rideshare:  '#FFFBEB',
   services:   '#FDF4FF',
   community:  '#FFF1F2',
+  events:     '#F0FDFA',
   'lost-found': '#F0F9FF',
 }
 
 const EMOJI: Record<string, string> = {
   housing: '🏠', 'for-sale': '🏷️', jobs: '💼',
-  rideshare: '🚗', services: '🔧', community: '👥', 'lost-found': '🔍',
+  rideshare: '🚗', services: '🔧', community: '👥', events: '🎟️', 'lost-found': '🔍',
 }
 
 export function ListingCard({ listing }: { listing: Listing }) {

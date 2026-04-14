@@ -1,24 +1,25 @@
 import Link from 'next/link'
 import { CATEGORIES } from '@/lib/constants'
-import { Home, Tag, Briefcase, Car, Wrench, Users, Search } from 'lucide-react'
+import { Home, Tag, Briefcase, Car, Wrench, Users, Search, CalendarDays } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Home, Tag, Briefcase, Car, Wrench, Users, Search,
+  Home, Tag, Briefcase, Car, Wrench, Users, Search, CalendarDays,
 }
 
 const CATEGORY_STYLES: Record<string, { bg: string; icon: string; border: string }> = {
-  housing:   { bg: '#EEF2FF', icon: '#4F46E5', border: '#C7D2FE' },
+  housing:    { bg: '#EEF2FF', icon: '#4F46E5', border: '#C7D2FE' },
   'for-sale': { bg: '#F0FDF4', icon: '#16A34A', border: '#BBF7D0' },
   jobs:       { bg: '#FFF7ED', icon: '#EA580C', border: '#FED7AA' },
   rideshare:  { bg: '#FFFBEB', icon: '#D97706', border: '#FDE68A' },
   services:   { bg: '#FDF4FF', icon: '#9333EA', border: '#E9D5FF' },
   community:  { bg: '#FFF1F2', icon: '#E11D48', border: '#FECDD3' },
+  events:     { bg: '#F0FDFA', icon: '#0D9488', border: '#99F6E4' },
   'lost-found': { bg: '#F0F9FF', icon: '#0284C7', border: '#BAE6FD' },
 }
 
 export function CategoryGrid() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
       {CATEGORIES.map((cat) => {
         const Icon = ICON_MAP[cat.icon] ?? Tag
         const style = CATEGORY_STYLES[cat.slug] ?? { bg: '#F8F7F4', icon: '#232D4B', border: '#e2e0db' }
@@ -26,16 +27,16 @@ export function CategoryGrid() {
           <Link
             key={cat.slug}
             href={`/category/${cat.slug}`}
-            className="flex flex-col items-center gap-2.5 p-4 rounded-xl border bg-white hover:shadow-md transition-all group hover:-translate-y-0.5"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl border bg-white hover:shadow-md transition-all group hover:-translate-y-0.5 duration-200"
             style={{ borderColor: style.border }}
           >
             <div
-              className="p-3 rounded-xl group-hover:scale-110 transition-transform"
+              className="p-2.5 rounded-xl group-hover:scale-110 transition-transform duration-200"
               style={{ backgroundColor: style.bg }}
             >
-              <Icon className="h-5 w-5" style={{ color: style.icon }} />
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: style.icon }} />
             </div>
-            <span className="text-xs font-semibold text-center leading-tight" style={{ color: '#232D4B' }}>
+            <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight" style={{ color: '#232D4B' }}>
               {cat.label}
             </span>
           </Link>

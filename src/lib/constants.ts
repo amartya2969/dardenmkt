@@ -44,10 +44,17 @@ export const CATEGORIES: Category[] = [
     subcategories: ['Events', 'Groups & Clubs', 'Announcements', 'Free Stuff', 'Volunteering', 'Other'],
   },
   {
+    slug: 'events',
+    label: 'Events',
+    icon: 'CalendarDays',
+    color: 'bg-teal-100 text-teal-700',
+    subcategories: ['Social', 'Networking', 'Academic', 'Sports', 'Career', 'Other'],
+  },
+  {
     slug: 'lost-found',
     label: 'Lost & Found',
     icon: 'Search',
-    color: 'bg-red-100 text-red-700',
+    color: 'bg-sky-100 text-sky-700',
     subcategories: ['Lost', 'Found'],
   },
 ]
