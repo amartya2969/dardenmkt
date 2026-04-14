@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/constants'
 import './globals.css'
 
@@ -41,8 +42,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={inter.className}>
         <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+        <div className="hidden md:block">
+          <Footer />
+        </div>
+        <MobileBottomNav />
         <Toaster richColors position="top-right" />
       </body>
     </html>

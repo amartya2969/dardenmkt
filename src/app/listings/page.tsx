@@ -15,8 +15,11 @@ async function Listings({ filters }: { filters: ListingFilters }) {
     .eq('status', 'active')
 
   if (filters.q) {
-    const term = `%${filters.q}%`
-    query = query.or(`title.ilike.${term},description.ilike.${term}`)
+    const terms = filters.q.trim().split(/\s+/).filter(Boolean)
+    for (const term of terms) {
+      const like = `%${term}%`
+      query = query.or(`title.ilike.${like},description.ilike.${like}`)
+    }
   }
   if (filters.category) query = query.eq('category', filters.category)
   if (filters.subcategory) query = query.eq('subcategory', filters.subcategory)

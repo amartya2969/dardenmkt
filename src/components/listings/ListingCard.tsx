@@ -4,6 +4,7 @@ import { formatPrice, formatRelativeTime } from '@/lib/utils'
 import { CATEGORY_MAP } from '@/lib/constants'
 import type { Listing } from '@/types'
 import { MapPin, Clock } from 'lucide-react'
+import { SaveButton } from '@/components/SaveButton'
 
 const CATEGORY_COLORS: Record<string, string> = {
   housing:    '#4F46E5',
@@ -57,6 +58,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
               {EMOJI[listing.category] ?? '📌'}
             </div>
           )}
+          <SaveButton listingId={listing.id} />
           {/* Badges */}
           <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
             {cat && (

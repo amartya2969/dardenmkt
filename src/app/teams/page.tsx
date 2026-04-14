@@ -3,14 +3,14 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { TeamGrid, TeamGridSkeleton } from '@/components/teams/TeamGrid'
 import { TEAM_TYPES } from '@/lib/constants'
-import type { Team, TeamType } from '@/types'
-import { Plus, Users } from 'lucide-react'
+import type { Team } from '@/types'
+import { Plus, Users, Search } from 'lucide-react'
 
 export const revalidate = 30
 
 export const metadata = { title: 'Team Matching — Find Your Co-founder' }
 
-async function Teams({ type }: { type?: string }) {
+async function Teams({ type, q }: { type?: string; q?: string }) {
   const supabase = await createClient()
   let query = supabase
     .from('teams')
@@ -19,12 +19,19 @@ async function Teams({ type }: { type?: string }) {
     .order('created_at', { ascending: false })
 
   if (type) query = query.eq('type', type)
+  if (q) {
+    const terms = q.trim().split(/\s+/).filter(Boolean)
+    for (const term of terms) {
+      const like = `%${term}%`
+      query = query.or(`title.ilike.${like},description.ilike.${like}`)
+    }
+  }
 
   const { data } = await query.limit(48)
   return (
     <TeamGrid
       teams={(data as Team[]) ?? []}
-      emptyMessage="No opportunities yet in this category."
+      emptyMessage="No opportunities found."
     />
   )
 }
@@ -32,10 +39,11 @@ async function Teams({ type }: { type?: string }) {
 export default async function TeamsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>
+  searchParams: Promise<{ type?: string; q?: string }>
 }) {
   const params = await searchParams
   const activeType = params.type
+  const q = params.q
 
   return (
     <div>
@@ -65,6 +73,19 @@ export default async function TeamsPage({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Search */}
+        <form method="get" className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="Search opportunities…"
+            className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:border-[#232D4B] bg-white"
+            style={{ '--tw-ring-color': 'rgba(35,45,75,0.2)' } as React.CSSProperties}
+          />
+          {activeType && <input type="hidden" name="type" value={activeType} />}
+        </form>
+
         {/* Type filter tabs */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           <Link
@@ -96,8 +117,8 @@ export default async function TeamsPage({
         </div>
 
         {/* Grid */}
-        <Suspense key={activeType} fallback={<TeamGridSkeleton count={6} />}>
-          <Teams type={activeType} />
+        <Suspense key={`${activeType}-${q}`} fallback={<TeamGridSkeleton count={6} />}>
+          <Teams type={activeType} q={q} />
         </Suspense>
       </div>
     </div>

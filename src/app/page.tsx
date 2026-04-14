@@ -10,6 +10,32 @@ import { ArrowRight, ShieldCheck, Users, Zap } from 'lucide-react'
 
 export const revalidate = 60
 
+async function FreshTodaySection() {
+  const supabase = await createClient()
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  const { data } = await supabase
+    .from('listings')
+    .select('*')
+    .eq('status', 'active')
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+    .limit(4)
+
+  if (!data || data.length === 0) return null
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center gap-2">
+        <h2 className="text-xl font-bold" style={{ color: '#232D4B' }}>🔥 Posted Today</h2>
+        <span className="px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: '#E57200' }}>
+          {data.length} new
+        </span>
+      </div>
+      <ListingGrid listings={data as Listing[]} />
+    </section>
+  )
+}
+
 async function RecentTeams() {
   const supabase = await createClient()
   const { data } = await supabase
@@ -100,6 +126,11 @@ export default function HomePage() {
             <CategoryGrid />
           </Suspense>
         </section>
+
+        {/* Fresh today */}
+        <Suspense>
+          <FreshTodaySection />
+        </Suspense>
 
         {/* Recent listings */}
         <section className="space-y-4">

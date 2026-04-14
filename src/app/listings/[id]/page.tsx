@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
@@ -10,7 +9,8 @@ import { MapPin, Clock, ArrowLeft, Pencil, Lock } from 'lucide-react'
 import type { Listing } from '@/types'
 import type { Metadata } from 'next'
 import { DeleteListingButton } from './DeleteListingButton'
-import { CopyEmailButton } from '@/components/CopyEmailButton'
+import { ContactForm } from '@/components/ContactForm'
+import { ImageSlideshow } from '@/components/listings/ImageSlideshow'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -49,20 +49,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
         {/* Left: Images + Description */}
         <div className="lg:col-span-2 space-y-5">
           {l.images && l.images.length > 0 ? (
-            <div className="space-y-2">
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100 shadow-sm">
-                <Image src={l.images[0]} alt={l.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 66vw" priority />
-              </div>
-              {l.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {l.images.slice(1).map((img, i) => (
-                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
-                      <Image src={img} alt={`Photo ${i + 2}`} fill className="object-cover" sizes="25vw" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ImageSlideshow images={l.images} title={l.title} />
           ) : (
             <div className="aspect-[4/3] rounded-2xl flex items-center justify-center text-7xl shadow-sm"
               style={{ background: 'linear-gradient(135deg, #f8f7f4 0%, #eee 100%)' }}>
@@ -127,7 +114,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
 
               {/* CTA — gated behind sign-in */}
               {user ? (
-                <CopyEmailButton email={l.contact_email} label="Copy Seller Email" />
+                <ContactForm listingId={l.id} listingTitle={l.title} />
               ) : (
                 <div className="space-y-2">
                   <div className="rounded-xl bg-gray-50 border border-dashed border-gray-200 px-4 py-3 flex items-center gap-2 text-sm text-gray-500">
