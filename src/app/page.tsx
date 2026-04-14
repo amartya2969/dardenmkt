@@ -96,7 +96,9 @@ export default function HomePage() {
         {/* Categories */}
         <section className="space-y-4">
           <h2 className="text-xl font-bold" style={{ color: '#232D4B' }}>Browse by Category</h2>
-          <CategoryGrid />
+          <Suspense fallback={<div className="grid grid-cols-4 lg:grid-cols-8 gap-3">{Array.from({length:8}).map((_,i)=><div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse"/>)}</div>}>
+            <CategoryGrid />
+          </Suspense>
         </section>
 
         {/* Recent listings */}

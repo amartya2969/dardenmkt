@@ -37,6 +37,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const hasImage = listing.images && listing.images.length > 0
   const color = CATEGORY_COLORS[listing.category] ?? '#232D4B'
   const bg = CATEGORY_BG[listing.category] ?? '#F8F7F4'
+  const isNew = Date.now() - new Date(listing.created_at).getTime() < 24 * 60 * 60 * 1000
 
   return (
     <Link href={`/listings/${listing.id}`} className="group block">
@@ -56,9 +57,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
               {EMOJI[listing.category] ?? '📌'}
             </div>
           )}
-          {/* Category badge */}
-          {cat && (
-            <div className="absolute top-2 left-2">
+          {/* Badges */}
+          <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
+            {cat && (
               <span
                 className="text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{ backgroundColor: bg, color }}
@@ -67,8 +68,13 @@ export function ListingCard({ listing }: { listing: Listing }) {
                   ? listing.subcategory
                   : cat.label}
               </span>
-            </div>
-          )}
+            )}
+            {isNew && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#E57200' }}>
+                New
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="p-3 flex flex-col gap-1.5 flex-1">

@@ -1,7 +1,7 @@
 import { LoginForm } from '@/components/auth/LoginForm'
 import { ShieldCheck } from 'lucide-react'
 
-export const metadata = { title: 'Sign In — DardenMkt' }
+export const metadata = { title: 'Sign In' }
 
 export default async function LoginPage({
   searchParams,

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 import { CATEGORIES } from '@/lib/constants'
 import { Home, Tag, Briefcase, Car, Wrench, Users, Search, CalendarDays } from 'lucide-react'
 
@@ -17,12 +18,24 @@ const CATEGORY_STYLES: Record<string, { bg: string; icon: string; border: string
   'lost-found': { bg: '#F0F9FF', icon: '#0284C7', border: '#BAE6FD' },
 }
 
-export function CategoryGrid() {
+export async function CategoryGrid() {
+  const supabase = await createClient()
+  const { data: counts } = await supabase
+    .from('listings')
+    .select('category')
+    .eq('status', 'active')
+
+  const countMap: Record<string, number> = {}
+  for (const row of counts ?? []) {
+    countMap[row.category] = (countMap[row.category] ?? 0) + 1
+  }
+
   return (
     <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
       {CATEGORIES.map((cat) => {
         const Icon = ICON_MAP[cat.icon] ?? Tag
         const style = CATEGORY_STYLES[cat.slug] ?? { bg: '#F8F7F4', icon: '#232D4B', border: '#e2e0db' }
+        const count = countMap[cat.slug] ?? 0
         return (
           <Link
             key={cat.slug}
@@ -38,6 +51,9 @@ export function CategoryGrid() {
             </div>
             <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight" style={{ color: '#232D4B' }}>
               {cat.label}
+            </span>
+            <span className="text-[9px] sm:text-[10px] text-gray-400 font-medium -mt-1">
+              {count > 0 ? `${count} listing${count === 1 ? '' : 's'}` : 'Be first!'}
             </span>
           </Link>
         )

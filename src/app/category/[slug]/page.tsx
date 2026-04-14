@@ -29,6 +29,7 @@ async function CategoryListings({ slug }: { slug: string }) {
     <ListingGrid
       listings={(data as Listing[]) ?? []}
       emptyMessage={`No ${CATEGORY_MAP[slug]?.label ?? ''} listings yet.`}
+      emptyCategory={slug}
     />
   )
 }
