@@ -7,24 +7,24 @@ import { MapPin, Clock } from 'lucide-react'
 import { SaveButton } from '@/components/SaveButton'
 
 const CATEGORY_COLORS: Record<string, string> = {
-  housing:    '#4F46E5',
-  'for-sale': '#16A34A',
-  jobs:       '#EA580C',
-  rideshare:  '#D97706',
-  services:   '#9333EA',
-  community:  '#E11D48',
-  events:     '#0D9488',
+  housing:      '#4F46E5',
+  'for-sale':   '#16A34A',
+  jobs:         '#EA580C',
+  rideshare:    '#D97706',
+  services:     '#9333EA',
+  community:    '#E11D48',
+  events:       '#0D9488',
   'lost-found': '#0284C7',
 }
 
 const CATEGORY_BG: Record<string, string> = {
-  housing:    '#EEF2FF',
-  'for-sale': '#F0FDF4',
-  jobs:       '#FFF7ED',
-  rideshare:  '#FFFBEB',
-  services:   '#FDF4FF',
-  community:  '#FFF1F2',
-  events:     '#F0FDFA',
+  housing:      '#EEF2FF',
+  'for-sale':   '#F0FDF4',
+  jobs:         '#FFF7ED',
+  rideshare:    '#FFFBEB',
+  services:     '#FDF4FF',
+  community:    '#FFF1F2',
+  events:       '#F0FDFA',
   'lost-found': '#F0F9FF',
 }
 
@@ -42,29 +42,35 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
   return (
     <Link href={`/listings/${listing.id}`} className="group block">
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 h-full flex flex-col">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-gray-200/60 hover:-translate-y-1 hover:border-gray-200 transition-all duration-200 h-full flex flex-col">
         {/* Image */}
         <div className="relative aspect-[4/3] overflow-hidden" style={{ backgroundColor: bg }}>
           {hasImage ? (
-            <Image
-              src={listing.images[0]}
-              alt={listing.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            />
+            <>
+              <Image
+                src={listing.images[0]}
+                alt={listing.title}
+                fill
+                className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              />
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none" />
+            </>
           ) : (
-            <div className="flex items-center justify-center h-full text-5xl">
+            <div className="flex items-center justify-center h-full text-5xl select-none">
               {EMOJI[listing.category] ?? '📌'}
             </div>
           )}
+
           <SaveButton listingId={listing.id} />
+
           {/* Badges */}
-          <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
+          <div className="absolute top-2.5 left-2.5 flex gap-1 flex-wrap">
             {cat && (
               <span
-                className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: bg, color }}
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm"
+                style={{ backgroundColor: `${bg}e8`, color }}
               >
                 {listing.category === 'lost-found' && listing.subcategory
                   ? listing.subcategory
@@ -72,28 +78,31 @@ export function ListingCard({ listing }: { listing: Listing }) {
               </span>
             )}
             {isNew && (
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#E57200' }}>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full text-white backdrop-blur-sm" style={{ backgroundColor: '#E57200' }}>
                 New
               </span>
             )}
           </div>
         </div>
 
-        <div className="p-3 flex flex-col gap-1.5 flex-1">
-          <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-[#232D4B] transition-colors" style={{ color: '#1a1a1a' }}>
+        {/* Content */}
+        <div className="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 className="font-semibold text-[13px] leading-snug line-clamp-2 text-gray-800 group-hover:text-[#232D4B] transition-colors">
             {listing.title}
           </h3>
 
-          <div className="font-bold text-sm mt-auto" style={{ color: '#232D4B' }}>
-            {listing.price !== null
-              ? formatPrice(listing.price, listing.price_label)
-              : listing.price_label
-                ? <span>{listing.price_label}</span>
-                : <span className="text-gray-400 font-normal text-xs">Contact for price</span>
-            }
+          <div className="mt-auto">
+            <div className="font-extrabold text-base leading-none" style={{ color: '#232D4B' }}>
+              {listing.price !== null
+                ? formatPrice(listing.price, listing.price_label)
+                : listing.price_label
+                  ? <span className="font-bold text-sm">{listing.price_label}</span>
+                  : <span className="text-gray-400 font-normal text-xs">Contact for price</span>
+              }
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-gray-400 pt-0.5 border-t border-gray-50">
+          <div className="flex items-center gap-2 text-[11px] text-gray-400 pt-2 border-t border-gray-50">
             {listing.location && (
               <span className="flex items-center gap-0.5 truncate">
                 <MapPin className="h-3 w-3 shrink-0" />
