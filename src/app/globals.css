@@ -10,7 +10,7 @@
   --color-uva-orange-light: #f08020;
 
   /* Neutrals */
-  --color-background: #F8F7F4;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
   --color-border: #e2e0db;
   --color-muted: #6b7280;
@@ -40,7 +40,7 @@
 
 /* CSS variable aliases for shadcn compatibility */
 :root {
-  --background: #F8F7F4;
+  --background: #ffffff;
   --foreground: #1a1a1a;
   --card: #ffffff;
   --card-foreground: #1a1a1a;
