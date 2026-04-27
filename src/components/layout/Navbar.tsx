@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
@@ -19,7 +19,6 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const router = useRouter()
-  const pathname = usePathname()
 
   useEffect(() => {
     const supabase = createClient()
@@ -68,6 +67,9 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href="/listings" className="font-semibold">All Listings</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/teams" className="font-semibold">🤝 Team Matching</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {CATEGORIES.map((cat) => (
                   <DropdownMenuItem key={cat.slug} asChild>
@@ -76,17 +78,6 @@ export function Navbar() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Link
-              href="/teams"
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname.startsWith('/teams')
-                  ? 'text-gray-900 bg-gray-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              Team Matching
-            </Link>
           </nav>
 
           {/* Right side */}
