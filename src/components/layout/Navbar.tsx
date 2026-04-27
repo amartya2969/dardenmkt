@@ -14,11 +14,21 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, Plus, LogOut, LayoutList, Settings, Bookmark, MessageCircle } from 'lucide-react'
 import { CATEGORIES } from '@/lib/constants'
 
+function computeInitials(name: string | null | undefined, emailFallback: string | null | undefined): string {
+  if (name && name.trim()) {
+    const parts = name.trim().split(/\s+/)
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    return parts[0][0].toUpperCase()
+  }
+  return (emailFallback?.[0] ?? '?').toUpperCase()
+}
+
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [unread, setUnread] = useState(0)
+  const [displayName, setDisplayName] = useState<string | null>(null)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -32,6 +42,18 @@ export function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => { subscription.unsubscribe(); window.removeEventListener('scroll', onScroll) }
   }, [])
+
+  // Fetch display name from profile
+  useEffect(() => {
+    if (!user) { setDisplayName(null); return }
+    const supabase = createClient()
+    supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => setDisplayName(data?.full_name ?? null))
+  }, [user, pathname])
 
   // Refetch unread count whenever route changes (so opening /messages/[id] clears the badge after server marks read)
   useEffect(() => {
@@ -49,7 +71,7 @@ export function Navbar() {
     router.refresh()
   }
 
-  const initial = (user?.email?.[0] ?? '?').toUpperCase()
+  const initial = computeInitials(displayName, user?.email)
 
   return (
     <header
@@ -112,6 +134,22 @@ export function Navbar() {
                   </Link>
                 </Button>
 
+                {/* Messages icon — desktop only */}
+                <Link
+                  href="/messages"
+                  aria-label={unread > 0 ? `Messages (${unread} unread)` : 'Messages'}
+                  className="hidden md:inline-flex relative items-center justify-center h-9 w-9 rounded-full border border-gray-200 bg-white hover:shadow-md transition-all"
+                >
+                  <MessageCircle className="h-4 w-4 text-gray-600" />
+                  {unread > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white"
+                    >
+                      {unread > 9 ? '9+' : unread}
+                    </span>
+                  )}
+                </Link>
+
                 {/* Airbnb-style avatar pill */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -123,14 +161,6 @@ export function Navbar() {
                       >
                         {initial}
                       </div>
-                      {unread > 0 && (
-                        <span
-                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white"
-                          aria-label={`${unread} unread messages`}
-                        >
-                          {unread > 9 ? '9+' : unread}
-                        </span>
-                      )}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 mt-1">
