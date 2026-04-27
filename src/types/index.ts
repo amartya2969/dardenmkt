@@ -5,6 +5,10 @@ export interface Profile {
   email: string
   full_name: string | null
   avatar_url: string | null
+  school: string | null
+  year: string | null
+  phone: string | null
+  bio: string | null
   created_at: string
 }
 
