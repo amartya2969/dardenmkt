@@ -43,9 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <Navbar />
         <main className="min-h-screen pb-16 md:pb-0">{children}</main>
-        <div className="hidden md:block">
-          <Footer />
-        </div>
+        <Footer />
         <MobileBottomNav />
         <Toaster richColors position="top-right" />
       </body>

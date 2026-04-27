@@ -1,10 +1,14 @@
 import Link from 'next/link'
 import { CATEGORIES } from '@/lib/constants'
 
+const DISCLAIMER_TEXT =
+  'DardenMkt is an independent platform created by and for students. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with the University of Virginia, the Darden School of Business, the UVA Darden School Foundation, or any of their affiliates. All trademarks, service marks, and registered marks (including "UVA," "Darden," "Cavaliers," "Hoos," and related marks) are the property of their respective owners. Use of @virginia.edu email addresses for verification does not imply any institutional partnership.'
+
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-gray-100" style={{ backgroundColor: '#232D4B' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Full footer — desktop only */}
+      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <div className="text-xl font-bold">
@@ -57,9 +61,21 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-blue-400">
-          <p>&copy; {new Date().getFullYear()} DardenMkt. All rights reserved.</p>
-          <p>Not affiliated with the University of Virginia or Darden School of Business.</p>
+        <div className="mt-10 pt-6 border-t border-white/10 space-y-3 text-xs text-blue-300/80">
+          <p className="leading-relaxed">{DISCLAIMER_TEXT}</p>
+          <p className="text-blue-400">&copy; {new Date().getFullYear()} DardenMkt. All rights reserved.</p>
+        </div>
+      </div>
+
+      {/* Compact disclaimer — visible on every screen size, including mobile */}
+      <div className="md:border-t md:border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-4 pb-20 md:pb-4">
+          <p className="text-[11px] leading-relaxed text-blue-300/70 text-center md:text-left md:hidden">
+            {DISCLAIMER_TEXT}
+          </p>
+          <p className="hidden md:block text-[11px] leading-relaxed text-blue-400 text-center">
+            DardenMkt is an independent student-run platform. Not affiliated with or endorsed by the University of Virginia or the Darden School of Business.
+          </p>
         </div>
       </div>
     </footer>
