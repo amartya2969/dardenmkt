@@ -54,7 +54,7 @@ export default function SetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-2xl font-extrabold mb-1">
-            <span style={{ color: '#232D4B' }}>Darden</span>
+            <span style={{ color: '#232D4B' }}>UV</span>
             <span style={{ color: '#E57200' }}>Mkt</span>
           </div>
           <h1 className="text-2xl font-bold mt-4" style={{ color: '#232D4B' }}>Set your password</h1>

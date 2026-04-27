@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-2xl font-extrabold">
-            <span style={{ color: '#232D4B' }}>Darden</span><span style={{ color: '#E57200' }}>Mkt</span>
+            <span style={{ color: '#232D4B' }}>UV</span><span style={{ color: '#E57200' }}>Mkt</span>
           </div>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">

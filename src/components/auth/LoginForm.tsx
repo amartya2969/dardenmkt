@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
 import { SITE_URL } from '@/lib/constants'
-import { Mail, Lock, Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
+import { Mail, Lock, Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -16,16 +16,28 @@ const schema = z.object({
 })
 type Values = z.infer<typeof schema>
 
+const RESEND_COOLDOWN_S = 30
+
 export function LoginForm({ errorParam }: { errorParam?: string }) {
   const [showPw, setShowPw] = useState(false)
   const [magicSent, setMagicSent] = useState(false)
   const [magicEmail, setMagicEmail] = useState('')
   const [sendingMagic, setSendingMagic] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resendNote, setResendNote] = useState<string | null>(null)
+  const [cooldown, setCooldown] = useState(0)
   const router = useRouter()
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, setError, getValues } = useForm<Values>({
     resolver: zodResolver(schema),
   })
+
+  // Tick cooldown down once per second
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000)
+    return () => clearInterval(t)
+  }, [cooldown])
 
   async function onSubmit(values: Values) {
     const supabase = createClient()
@@ -38,6 +50,15 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
     router.refresh()
   }
 
+  async function sendMagicLinkInternal(email: string) {
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${SITE_URL}/auth/callback`, shouldCreateUser: false },
+    })
+    return error
+  }
+
   async function sendMagicLink() {
     const email = getValues('email')
     if (!email.endsWith('@virginia.edu')) {
@@ -45,14 +66,25 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
       return
     }
     setSendingMagic(true)
-    const supabase = createClient()
-    await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${SITE_URL}/auth/callback`, shouldCreateUser: false },
-    })
+    await sendMagicLinkInternal(email)
     setMagicEmail(email)
     setMagicSent(true)
+    setCooldown(RESEND_COOLDOWN_S)
     setSendingMagic(false)
+  }
+
+  async function resendMagicLink() {
+    if (cooldown > 0 || resending) return
+    setResending(true)
+    setResendNote(null)
+    const error = await sendMagicLinkInternal(magicEmail)
+    setResending(false)
+    if (error) {
+      setResendNote('Could not resend — please try again in a moment.')
+      return
+    }
+    setResendNote('Sent again. Check your inbox.')
+    setCooldown(RESEND_COOLDOWN_S)
   }
 
   if (magicSent) {
@@ -64,6 +96,34 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
           We sent a sign-in link to<br /><strong className="text-gray-700">{magicEmail}</strong>
         </p>
         <p className="text-xs text-gray-400">Expires in 1 hour · Check spam if needed</p>
+
+        {resendNote && (
+          <p className="text-xs font-medium" style={{ color: '#E57200' }}>{resendNote}</p>
+        )}
+
+        <div className="pt-2 space-y-3">
+          <button
+            type="button"
+            onClick={resendMagicLink}
+            disabled={cooldown > 0 || resending}
+            className="w-full h-10 rounded-xl font-medium text-sm text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+          >
+            {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+            {resending
+              ? 'Resending…'
+              : cooldown > 0
+              ? `Resend in ${cooldown}s`
+              : 'Resend email'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setMagicSent(false); setMagicEmail(''); setResendNote(null); setCooldown(0) }}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700"
+          >
+            <ArrowLeft className="h-3 w-3" /> Use a different email
+          </button>
+        </div>
       </div>
     )
   }

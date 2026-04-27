@@ -1,16 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { SITE_URL } from '@/lib/constants'
 import { Mail, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+
+const RESEND_COOLDOWN_S = 30
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resendNote, setResendNote] = useState<string | null>(null)
+  const [cooldown, setCooldown] = useState(0)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000)
+    return () => clearInterval(t)
+  }, [cooldown])
+
+  async function sendInternal(addr: string) {
+    const supabase = createClient()
+    return supabase.auth.resetPasswordForEmail(addr, {
+      redirectTo: `${SITE_URL}/auth/callback?next=/auth/reset-password`,
+    })
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -20,13 +38,25 @@ export default function ForgotPasswordPage() {
       return
     }
     setLoading(true)
-    const supabase = createClient()
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${SITE_URL}/auth/callback?next=/auth/reset-password`,
-    })
+    await sendInternal(email)
     // Always show success to avoid email enumeration
     setSent(true)
+    setCooldown(RESEND_COOLDOWN_S)
     setLoading(false)
+  }
+
+  async function handleResend() {
+    if (cooldown > 0 || resending) return
+    setResending(true)
+    setResendNote(null)
+    const { error } = await sendInternal(email)
+    setResending(false)
+    if (error) {
+      setResendNote('Could not resend — please try again in a moment.')
+      return
+    }
+    setResendNote('Sent again. Check your inbox.')
+    setCooldown(RESEND_COOLDOWN_S)
   }
 
   return (
@@ -34,7 +64,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-2xl font-extrabold mb-1">
-            <span style={{ color: '#232D4B' }}>Darden</span>
+            <span style={{ color: '#232D4B' }}>UV</span>
             <span style={{ color: '#E57200' }}>Mkt</span>
           </div>
         </div>
@@ -49,9 +79,30 @@ export default function ForgotPasswordPage() {
                 you&apos;ll receive a password reset link shortly.
               </p>
               <p className="text-xs text-gray-400">Link expires in 1 hour · Check spam if needed</p>
-              <Link href="/auth/login" className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline" style={{ color: '#E57200' }}>
-                <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
-              </Link>
+
+              {resendNote && (
+                <p className="text-xs font-medium" style={{ color: '#E57200' }}>{resendNote}</p>
+              )}
+
+              <div className="pt-2 space-y-3">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={cooldown > 0 || resending}
+                  className="w-full h-10 rounded-xl font-medium text-sm text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+                >
+                  {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                  {resending
+                    ? 'Resending…'
+                    : cooldown > 0
+                    ? `Resend in ${cooldown}s`
+                    : 'Resend email'}
+                </button>
+
+                <Link href="/auth/login" className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline" style={{ color: '#E57200' }}>
+                  <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
+                </Link>
+              </div>
             </div>
           ) : (
             <>

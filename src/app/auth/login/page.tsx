@@ -19,7 +19,7 @@ export default async function LoginPage({
         }} />
         <div className="relative">
           <div className="flex items-center gap-1 text-2xl font-bold">
-            <span className="text-white">Darden</span>
+            <span className="text-white">UV</span>
             <span style={{ color: '#E57200' }}>Mkt</span>
           </div>
           <p className="text-blue-200 text-sm mt-1">UVA Student Marketplace</p>
@@ -66,7 +66,7 @@ export default async function LoginPage({
           {/* Mobile logo */}
           <div className="lg:hidden text-center">
             <div className="text-2xl font-bold">
-              <span style={{ color: '#232D4B' }}>Darden</span>
+              <span style={{ color: '#232D4B' }}>UV</span>
               <span style={{ color: '#E57200' }}>Mkt</span>
             </div>
             <p className="text-sm text-gray-500 mt-1">UVA Student Marketplace</p>

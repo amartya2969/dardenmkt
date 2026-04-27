@@ -13,7 +13,7 @@ export default function SignupPage() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 70%, #E57200 0%, transparent 60%)' }} />
         <div className="relative">
           <div className="text-2xl font-extrabold">
-            <span className="text-white">Darden</span>
+            <span className="text-white">UV</span>
             <span style={{ color: '#E57200' }}>Mkt</span>
           </div>
           <p className="text-blue-200 text-sm mt-1">UVA Student Marketplace</p>
@@ -54,7 +54,7 @@ export default function SignupPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center">
             <div className="text-2xl font-extrabold">
-              <span style={{ color: '#232D4B' }}>Darden</span>
+              <span style={{ color: '#232D4B' }}>UV</span>
               <span style={{ color: '#E57200' }}>Mkt</span>
             </div>
             <p className="text-sm text-gray-500 mt-1">UVA Student Marketplace</p>
