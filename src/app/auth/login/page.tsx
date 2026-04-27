@@ -76,7 +76,7 @@ export default async function LoginPage({
             <div className="mb-6">
               <h1 className="text-2xl font-bold" style={{ color: '#232D4B' }}>Sign in</h1>
               <p className="text-sm text-gray-500 mt-1">
-                Enter your UVA email — we'll send you a magic link.
+                Sign in with your UVA email and password.
               </p>
             </div>
 

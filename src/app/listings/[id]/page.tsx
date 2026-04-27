@@ -9,8 +9,43 @@ import { MapPin, Clock, ArrowLeft, Pencil, Lock } from 'lucide-react'
 import type { Listing } from '@/types'
 import type { Metadata } from 'next'
 import { DeleteListingButton } from './DeleteListingButton'
-import { ContactForm } from '@/components/ContactForm'
+import { ChatButton } from '@/components/chat/ChatButton'
 import { ImageSlideshow } from '@/components/listings/ImageSlideshow'
+
+const META_LABELS: Record<string, string> = {
+  bedrooms: 'Bedrooms',
+  bathrooms: 'Bathrooms',
+  furnished: 'Furnished',
+  available_from: 'Available From',
+  condition: 'Condition',
+  departure_date: 'Departure Date',
+  from_location: 'From',
+  to_location: 'To',
+  seats_available: 'Seats Available',
+  event_date: 'Event Date',
+  event_time: 'Event Time',
+  venue: 'Venue',
+  date_lost: 'Date Lost / Found',
+  item_last_seen: 'Last Seen At',
+}
+
+function ListingMetadata({ metadata }: { category: string; metadata: Record<string, string> }) {
+  const entries = Object.entries(metadata).filter(([k, v]) => v && META_LABELS[k])
+  if (entries.length === 0) return null
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+      <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4">Details</h2>
+      <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+        {entries.map(([key, value]) => (
+          <div key={key} className="flex flex-col">
+            <dt className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{META_LABELS[key]}</dt>
+            <dd className="mt-0.5 font-semibold" style={{ color: '#232D4B' }}>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -53,8 +88,13 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
           ) : (
             <div className="aspect-[4/3] rounded-2xl flex items-center justify-center text-7xl shadow-sm"
               style={{ background: 'linear-gradient(135deg, #f8f7f4 0%, #eee 100%)' }}>
-              {l.category === 'housing' ? '🏠' : l.category === 'for-sale' ? '🏷️' : l.category === 'jobs' ? '💼' : l.category === 'rideshare' ? '🚗' : l.category === 'services' ? '🔧' : l.category === 'events' ? '🎟️' : l.category === 'community' ? '👥' : '🔍'}
+              {({ housing: '🏠', 'for-sale': '🏷️', rideshare: '🚗', events: '🎟️', community: '👥', 'lost-found': '🔍' } as Record<string, string>)[l.category] ?? '📋'}
             </div>
+          )}
+
+          {/* Category-specific metadata */}
+          {l.metadata && Object.keys(l.metadata).length > 0 && (
+            <ListingMetadata category={l.category} metadata={l.metadata as Record<string, string>} />
           )}
 
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-2">
@@ -124,7 +164,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
                   </Button>
                 </div>
               ) : !isOwner ? (
-                <ContactForm listingId={l.id} listingTitle={l.title} />
+                <ChatButton listingId={l.id} listingTitle={l.title} />
               ) : (
                 <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-blue-700 text-center">
                   This is your listing
