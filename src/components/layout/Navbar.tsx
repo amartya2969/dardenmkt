@@ -1,17 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, Plus, LogOut, LayoutList, ChevronDown, Settings, Bookmark, MessageCircle } from 'lucide-react'
+import { Menu, Plus, LogOut, LayoutList, Settings, Bookmark, MessageCircle } from 'lucide-react'
 import { CATEGORIES } from '@/lib/constants'
 
 export function Navbar() {
@@ -19,6 +19,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const supabase = createClient()
@@ -55,29 +56,35 @@ export function Navbar() {
             <span className="font-extrabold text-xl tracking-tight" style={{ color: '#E57200' }}>Mkt</span>
           </Link>
 
-          {/* Desktop nav */}
+          {/* Desktop nav — each category at top level, alongside Team Matching */}
           <nav className="hidden md:flex items-center gap-0.5 ml-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors">
-                  Browse <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-52">
-                <DropdownMenuItem asChild>
-                  <Link href="/listings" className="font-semibold">All Listings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/teams" className="font-semibold">🤝 Team Matching</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {CATEGORIES.map((cat) => (
-                  <DropdownMenuItem key={cat.slug} asChild>
-                    <Link href={`/category/${cat.slug}`}>{cat.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {CATEGORIES.map((cat) => {
+              const href = `/category/${cat.slug}`
+              const isActive = pathname === href || pathname.startsWith(href + '/')
+              return (
+                <Link
+                  key={cat.slug}
+                  href={href}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-gray-900 bg-gray-50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {cat.label}
+                </Link>
+              )
+            })}
+            <Link
+              href="/teams"
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname.startsWith('/teams')
+                  ? 'text-gray-900 bg-gray-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Team Matching
+            </Link>
           </nav>
 
           {/* Right side */}
