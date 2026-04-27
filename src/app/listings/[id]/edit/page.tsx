@@ -23,6 +23,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
 
+    const rawMeta = values.metadata
+    const cleanMeta = rawMeta
+      ? Object.fromEntries(Object.entries(rawMeta).filter(([, v]) => !!v))
+      : null
+
     const { error } = await supabase.from('listings').update({
       title: values.title,
       description: values.description,
@@ -33,6 +38,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
       contact_email: values.contact_email,
       location: values.location || null,
       images: values.images,
+      metadata: cleanMeta && Object.keys(cleanMeta).length > 0 ? cleanMeta : null,
     }).eq('id', id).eq('user_id', user.id)
 
     if (error) throw new Error(error.message)

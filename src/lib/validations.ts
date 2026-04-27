@@ -13,6 +13,27 @@ export const listingSchema = z.object({
   contact_email: z.string().email('Invalid email').endsWith('@virginia.edu', 'Must be a @virginia.edu email'),
   location: z.string().optional(),
   images: z.array(z.string()).max(5, 'Maximum 5 images'),
+  metadata: z.object({
+    // Housing
+    bedrooms: z.string().optional(),
+    bathrooms: z.string().optional(),
+    furnished: z.string().optional(),
+    available_from: z.string().optional(),
+    // For Sale
+    condition: z.string().optional(),
+    // Rideshare
+    departure_date: z.string().optional(),
+    from_location: z.string().optional(),
+    to_location: z.string().optional(),
+    seats_available: z.string().optional(),
+    // Events
+    event_date: z.string().optional(),
+    event_time: z.string().optional(),
+    venue: z.string().optional(),
+    // Lost & Found
+    date_lost: z.string().optional(),
+    item_last_seen: z.string().optional(),
+  }).optional(),
 })
 
 export type ListingFormValues = z.infer<typeof listingSchema>

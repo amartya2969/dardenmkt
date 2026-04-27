@@ -16,25 +16,11 @@ export const CATEGORIES: Category[] = [
     subcategories: ['Furniture', 'Electronics', 'Books & Supplies', 'Clothing', 'Vehicles', 'Sports & Outdoors', 'Other'],
   },
   {
-    slug: 'jobs',
-    label: 'Jobs & Internships',
-    icon: 'Briefcase',
-    color: 'bg-purple-100 text-purple-700',
-    subcategories: ['Full-time', 'Part-time', 'Internship', 'Freelance', 'On-campus', 'Consulting', 'Other'],
-  },
-  {
     slug: 'rideshare',
     label: 'Rideshare',
     icon: 'Car',
     color: 'bg-yellow-100 text-yellow-700',
     subcategories: ['Airport (CHO/IAD/DCA/RIC)', 'DC / Northern VA', 'Richmond', 'NYC', 'Other'],
-  },
-  {
-    slug: 'services',
-    label: 'Services',
-    icon: 'Wrench',
-    color: 'bg-orange-100 text-orange-700',
-    subcategories: ['Tutoring', 'Moving Help', 'Cleaning', 'Tech Help', 'Photography', 'Other'],
   },
   {
     slug: 'community',
@@ -95,5 +81,5 @@ export const SKILLS_OPTIONS = [
 ]
 
 export const SITE_NAME = 'DardenMkt'
-export const SITE_DESCRIPTION = 'The UVA & Darden student marketplace — buy, sell, find housing, jobs, and more.'
+export const SITE_DESCRIPTION = 'The UVA & Darden student marketplace — housing, for sale, rideshares, team matching, and more.'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'

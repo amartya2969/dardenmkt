@@ -17,6 +17,11 @@ export default async function NewListingPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
 
+    const rawMeta = values.metadata
+    const cleanMeta = rawMeta
+      ? Object.fromEntries(Object.entries(rawMeta).filter(([, v]) => !!v))
+      : null
+
     const { data, error } = await supabase.from('listings').insert({
       user_id: user.id,
       title: values.title,
@@ -28,6 +33,7 @@ export default async function NewListingPage() {
       contact_email: values.contact_email,
       location: values.location || null,
       images: values.images,
+      metadata: cleanMeta && Object.keys(cleanMeta).length > 0 ? cleanMeta : null,
     }).select('id').single()
 
     if (error) throw new Error(error.message)

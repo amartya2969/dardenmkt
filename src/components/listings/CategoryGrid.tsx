@@ -1,18 +1,16 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { CATEGORIES } from '@/lib/constants'
-import { Home, Tag, Briefcase, Car, Wrench, Users, Search, CalendarDays } from 'lucide-react'
+import { Home, Tag, Car, Users, Search, CalendarDays } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Home, Tag, Briefcase, Car, Wrench, Users, Search, CalendarDays,
+  Home, Tag, Car, Users, Search, CalendarDays,
 }
 
 const CATEGORY_STYLES: Record<string, { bg: string; icon: string; border: string; hover: string }> = {
   housing:      { bg: '#EEF2FF', icon: '#4F46E5', border: '#C7D2FE', hover: '#E0E7FF' },
   'for-sale':   { bg: '#F0FDF4', icon: '#16A34A', border: '#BBF7D0', hover: '#DCFCE7' },
-  jobs:         { bg: '#FFF7ED', icon: '#EA580C', border: '#FED7AA', hover: '#FFEDD5' },
   rideshare:    { bg: '#FFFBEB', icon: '#D97706', border: '#FDE68A', hover: '#FEF3C7' },
-  services:     { bg: '#FDF4FF', icon: '#9333EA', border: '#E9D5FF', hover: '#F3E8FF' },
   community:    { bg: '#FFF1F2', icon: '#E11D48', border: '#FECDD3', hover: '#FFE4E6' },
   events:       { bg: '#F0FDFA', icon: '#0D9488', border: '#99F6E4', hover: '#CCFBF1' },
   'lost-found': { bg: '#F0F9FF', icon: '#0284C7', border: '#BAE6FD', hover: '#E0F2FE' },
