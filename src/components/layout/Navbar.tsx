@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, Plus, LogOut, LayoutList, ChevronDown, Settings, Bookmark, MessageCircle } from 'lucide-react'
+import { Menu, Plus, LogOut, LayoutList, ChevronDown, Settings, Bookmark } from 'lucide-react'
 import { CATEGORIES } from '@/lib/constants'
 
 export function Navbar() {
@@ -126,11 +126,6 @@ export function Navbar() {
                       <DropdownMenuItem asChild>
                         <Link href="/my-listings" className="gap-2.5 flex items-center text-sm">
                           <LayoutList className="h-4 w-4 text-gray-400" /> My Listings
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/messages" className="gap-2.5 flex items-center text-sm">
-                          <MessageCircle className="h-4 w-4 text-gray-400" /> Messages
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>

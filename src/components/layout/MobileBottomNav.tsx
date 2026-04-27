@@ -3,14 +3,14 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, LayoutGrid, Plus, Users, MessageCircle } from 'lucide-react'
+import { Home, LayoutGrid, Plus, Users, Bookmark } from 'lucide-react'
 
 const NAV_ITEMS: { href: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; label: string; special?: true }[] = [
-  { href: '/',             icon: Home,          label: 'Home'     },
-  { href: '/listings',     icon: LayoutGrid,    label: 'Browse'   },
-  { href: '/listings/new', icon: Plus,          label: 'Post',    special: true },
-  { href: '/teams',        icon: Users,         label: 'Teams'    },
-  { href: '/messages',     icon: MessageCircle, label: 'Messages' },
+  { href: '/',             icon: Home,       label: 'Home'   },
+  { href: '/listings',     icon: LayoutGrid, label: 'Browse' },
+  { href: '/listings/new', icon: Plus,       label: 'Post',  special: true },
+  { href: '/teams',        icon: Users,      label: 'Teams'  },
+  { href: '/saved',        icon: Bookmark,   label: 'Saved'  },
 ]
 
 export function MobileBottomNav() {
