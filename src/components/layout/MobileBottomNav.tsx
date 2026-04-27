@@ -1,20 +1,40 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, LayoutGrid, Plus, Users, MessageCircle } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
-const NAV_ITEMS: { href: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; label: string; special?: true }[] = [
+const NAV_ITEMS: { href: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; label: string; special?: true; trackUnread?: true }[] = [
   { href: '/',             icon: Home,          label: 'Home'     },
   { href: '/listings',     icon: LayoutGrid,    label: 'Browse'   },
   { href: '/listings/new', icon: Plus,          label: 'Post',    special: true },
   { href: '/teams',        icon: Users,         label: 'Teams'    },
-  { href: '/messages',     icon: MessageCircle, label: 'Messages' },
+  { href: '/messages',     icon: MessageCircle, label: 'Messages', trackUnread: true },
 ]
 
 export function MobileBottomNav() {
   const pathname = usePathname()
+  const [unread, setUnread] = useState(0)
+  const [signedIn, setSignedIn] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session?.user)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    if (!signedIn) { setUnread(0); return }
+    fetch('/api/messages/unread', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => setUnread(d.count ?? 0))
+      .catch(() => {})
+  }, [signedIn, pathname])
 
   return (
     <nav
@@ -22,11 +42,12 @@ export function MobileBottomNav() {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-end justify-around h-16 px-1">
-        {NAV_ITEMS.map(({ href, icon: Icon, label, special }) => {
+        {NAV_ITEMS.map(({ href, icon: Icon, label, special, trackUnread }) => {
           const isActive =
             href === '/'
               ? pathname === '/'
               : pathname === href || pathname.startsWith(href + '/')
+          const showBadge = trackUnread && unread > 0
 
           return (
             <Link
@@ -42,10 +63,20 @@ export function MobileBottomNav() {
                   <Icon className="h-5 w-5" />
                 </div>
               ) : (
-                <Icon
-                  className="h-5 w-5 transition-colors"
-                  style={{ color: isActive ? '#232D4B' : '#9ca3af' }}
-                />
+                <div className="relative">
+                  <Icon
+                    className="h-5 w-5 transition-colors"
+                    style={{ color: isActive ? '#232D4B' : '#9ca3af' }}
+                  />
+                  {showBadge && (
+                    <span
+                      className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white"
+                      aria-label={`${unread} unread messages`}
+                    >
+                      {unread > 9 ? '9+' : unread}
+                    </span>
+                  )}
+                </div>
               )}
               <span
                 className="text-[10px] font-medium transition-colors"

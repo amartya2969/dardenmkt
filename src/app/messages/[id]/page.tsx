@@ -57,6 +57,14 @@ export default async function ConversationPage({
     .eq('conversation_id', id)
     .order('created_at', { ascending: true })
 
+  // Mark conversation as read for this participant
+  const isInitiatorParticipant = conv.initiator_id === user.id
+  const readField = isInitiatorParticipant ? 'initiator_last_read_at' : 'responder_last_read_at'
+  await admin
+    .from('conversations')
+    .update({ [readField]: new Date().toISOString() })
+    .eq('id', id)
+
   const conversation = conv as Conversation
   const messages = (msgs ?? []) as Message[]
 

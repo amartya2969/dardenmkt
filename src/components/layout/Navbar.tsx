@@ -18,6 +18,7 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [unread, setUnread] = useState(0)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -31,6 +32,15 @@ export function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => { subscription.unsubscribe(); window.removeEventListener('scroll', onScroll) }
   }, [])
+
+  // Refetch unread count whenever route changes (so opening /messages/[id] clears the badge after server marks read)
+  useEffect(() => {
+    if (!user) { setUnread(0); return }
+    fetch('/api/messages/unread', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => setUnread(d.count ?? 0))
+      .catch(() => {})
+  }, [user, pathname])
 
   async function signOut() {
     const supabase = createClient()
@@ -105,7 +115,7 @@ export function Navbar() {
                 {/* Airbnb-style avatar pill */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2.5 pl-3 pr-1.5 py-1.5 rounded-full border border-gray-200 hover:shadow-md transition-all bg-white group">
+                    <button className="relative flex items-center gap-2.5 pl-3 pr-1.5 py-1.5 rounded-full border border-gray-200 hover:shadow-md transition-all bg-white group">
                       <Menu className="h-4 w-4 text-gray-500 group-hover:text-gray-700" />
                       <div
                         className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
@@ -113,6 +123,14 @@ export function Navbar() {
                       >
                         {initial}
                       </div>
+                      {unread > 0 && (
+                        <span
+                          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white"
+                          aria-label={`${unread} unread messages`}
+                        >
+                          {unread > 9 ? '9+' : unread}
+                        </span>
+                      )}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 mt-1">
@@ -128,7 +146,13 @@ export function Navbar() {
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/messages" className="gap-2.5 flex items-center text-sm">
-                          <MessageCircle className="h-4 w-4 text-gray-400" /> Messages
+                          <MessageCircle className="h-4 w-4 text-gray-400" />
+                          <span className="flex-1">Messages</span>
+                          {unread > 0 && (
+                            <span className="ml-auto min-w-[18px] h-[18px] px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                              {unread > 9 ? '9+' : unread}
+                            </span>
+                          )}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
