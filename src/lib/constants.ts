@@ -80,6 +80,6 @@ export const SKILLS_OPTIONS = [
   'Sales', 'International Business', 'Sustainability', 'AI/ML',
 ]
 
-export const SITE_NAME = 'DardenMkt'
-export const SITE_DESCRIPTION = 'The UVA & Darden student marketplace — housing, for sale, rideshares, team matching, and more.'
+export const SITE_NAME = 'UVMkt'
+export const SITE_DESCRIPTION = 'The UVA student marketplace — housing, for sale, rideshares, team matching, and more.'
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'

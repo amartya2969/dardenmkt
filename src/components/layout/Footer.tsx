@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { CATEGORIES } from '@/lib/constants'
 
 const DISCLAIMER_TEXT =
-  'DardenMkt is an independent platform created by and for students. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with the University of Virginia, the Darden School of Business, the UVA Darden School Foundation, or any of their affiliates. All trademarks, service marks, and registered marks (including "UVA," "Darden," "Cavaliers," "Hoos," and related marks) are the property of their respective owners. Use of @virginia.edu email addresses for verification does not imply any institutional partnership.'
+  'UVMkt is an independent platform created by and for students. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with the University of Virginia, the Darden School of Business, the UVA Darden School Foundation, or any of their affiliates. All trademarks, service marks, and registered marks (including "UVA," "Darden," "Cavaliers," "Hoos," and related marks) are the property of their respective owners. Use of @virginia.edu email addresses for verification does not imply any institutional partnership.'
 
 export function Footer() {
   return (
@@ -12,11 +12,11 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <div className="text-xl font-bold">
-              <span className="text-white">Darden</span>
+              <span className="text-white">UV</span>
               <span style={{ color: '#E57200' }}>Mkt</span>
             </div>
             <p className="mt-2 text-sm text-blue-200 leading-relaxed">
-              The UVA &amp; Darden student marketplace. Free, verified, and built for Hoos.
+              The UVA student marketplace. Free, verified, and built for Hoos.
             </p>
             <div className="mt-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-blue-400/30 bg-white/5 text-xs text-blue-300">
               @virginia.edu only
@@ -63,7 +63,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-white/10 space-y-3 text-xs text-blue-300/80">
           <p className="leading-relaxed">{DISCLAIMER_TEXT}</p>
-          <p className="text-blue-400">&copy; {new Date().getFullYear()} DardenMkt. All rights reserved.</p>
+          <p className="text-blue-400">&copy; {new Date().getFullYear()} UVMkt. All rights reserved.</p>
         </div>
       </div>
 
@@ -74,7 +74,7 @@ export function Footer() {
             {DISCLAIMER_TEXT}
           </p>
           <p className="hidden md:block text-[11px] leading-relaxed text-blue-400 text-center">
-            DardenMkt is an independent student-run platform. Not affiliated with or endorsed by the University of Virginia or the Darden School of Business.
+            UVMkt is an independent student-run platform. Not affiliated with or endorsed by the University of Virginia or the Darden School of Business.
           </p>
         </div>
       </div>

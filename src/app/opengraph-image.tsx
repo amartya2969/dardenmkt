@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'DardenMkt — UVA & Darden Student Marketplace'
+export const alt = 'UVMkt — UVA Student Marketplace'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -42,7 +42,7 @@ export default function OGImage() {
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
-          <span style={{ fontSize: 56, fontWeight: 800, color: '#ffffff', letterSpacing: '-1px' }}>Darden</span>
+          <span style={{ fontSize: 56, fontWeight: 800, color: '#ffffff', letterSpacing: '-1px' }}>UV</span>
           <span style={{ fontSize: 56, fontWeight: 800, color: '#E57200', letterSpacing: '-1px' }}>Mkt</span>
         </div>
 
@@ -54,12 +54,12 @@ export default function OGImage() {
           marginBottom: 40,
           letterSpacing: '0.01em',
         }}>
-          UVA & Darden Student Marketplace
+          UVA Student Marketplace
         </div>
 
         {/* Category pills */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 900 }}>
-          {['🏠 Housing', '🏷️ For Sale', '💼 Jobs', '🚗 Rideshare', '🎟️ Events', '🤝 Teams'].map((label) => (
+          {['🏠 Housing', '🏷️ For Sale', '🚗 Rideshare', '🎟️ Events', '👥 Community', '🤝 Teams'].map((label) => (
             <div key={label} style={{
               padding: '10px 22px',
               borderRadius: 999,
@@ -82,7 +82,7 @@ export default function OGImage() {
           color: 'rgba(255,255,255,0.35)',
           letterSpacing: '0.05em',
         }}>
-          dardenmkt.vercel.app · @virginia.edu only
+          uvmkt.vercel.app · @virginia.edu only
         </div>
       </div>
     ),

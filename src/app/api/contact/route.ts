@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail, contactEmailHtml } from '@/lib/email'
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://dardenmkt.vercel.app'
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://uvmkt.vercel.app'
 
 export async function POST(request: Request) {
   const supabase = await createClient()

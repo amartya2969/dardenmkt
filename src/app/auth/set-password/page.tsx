@@ -43,7 +43,7 @@ export default function SetPasswordPage() {
         <div className="text-center space-y-4">
           <CheckCircle2 className="h-16 w-16 mx-auto" style={{ color: '#E57200' }} />
           <h2 className="text-2xl font-bold" style={{ color: '#232D4B' }}>You&apos;re all set!</h2>
-          <p className="text-gray-500 text-sm">Redirecting you to DardenMkt…</p>
+          <p className="text-gray-500 text-sm">Redirecting you to UVMkt…</p>
         </div>
       </div>
     )

@@ -62,7 +62,7 @@ export function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
-            <span className="font-extrabold text-xl tracking-tight" style={{ color: '#232D4B' }}>Darden</span>
+            <span className="font-extrabold text-xl tracking-tight" style={{ color: '#232D4B' }}>UV</span>
             <span className="font-extrabold text-xl tracking-tight" style={{ color: '#E57200' }}>Mkt</span>
           </Link>
 
@@ -208,7 +208,7 @@ export function Navbar() {
               <SheetContent side="left" className="w-72 p-0">
                 <div className="h-16 flex items-center px-5 border-b border-gray-100">
                   <span className="font-extrabold text-xl" style={{ color: '#232D4B' }}>
-                    Darden<span style={{ color: '#E57200' }}>Mkt</span>
+                    UV<span style={{ color: '#E57200' }}>Mkt</span>
                   </span>
                 </div>
                 <div className="py-3 px-3 space-y-0.5">

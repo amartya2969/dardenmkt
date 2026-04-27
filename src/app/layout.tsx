@@ -11,29 +11,29 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE_NAME} — UVA & Darden Student Marketplace`,
+    default: `${SITE_NAME} — UVA Student Marketplace`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — UVA & Darden Student Marketplace`,
+    title: `${SITE_NAME} — UVA Student Marketplace`,
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: 'https://dardenmkt.vercel.app/og-image.png',
+        url: 'https://uvmkt.vercel.app/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'DardenMkt — UVA & Darden Student Marketplace',
+        alt: 'UVMkt — UVA Student Marketplace',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} — UVA & Darden Student Marketplace`,
+    title: `${SITE_NAME} — UVA Student Marketplace`,
     description: SITE_DESCRIPTION,
-    images: ['https://dardenmkt.vercel.app/og-image.png'],
+    images: ['https://uvmkt.vercel.app/og-image.png'],
   },
 }
 

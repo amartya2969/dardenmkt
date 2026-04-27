@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Edit Profile — DardenMkt' }
+export const metadata: Metadata = { title: 'Edit Profile — UVMkt' }
 
 export default async function ProfilePage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const supabase = await createClient()

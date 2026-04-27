@@ -1,5 +1,5 @@
 -- ============================================================
--- DardenMkt Database Schema
+-- UVMkt Database Schema
 -- Run this in your Supabase SQL Editor
 -- ============================================================
 

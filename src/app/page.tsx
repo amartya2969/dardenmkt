@@ -86,7 +86,7 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-extrabold text-white tracking-[-0.03em] leading-[1.04] mb-6">
-            The UVA & Darden<br />
+            The UVA<br />
             <span style={{ color: '#E57200' }}>Student Marketplace</span>
           </h1>
 

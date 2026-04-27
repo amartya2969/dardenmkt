@@ -138,7 +138,7 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
       </button>
 
       <p className="text-center text-sm text-gray-500">
-        New to DardenMkt?{' '}
+        New to UVMkt?{' '}
         <Link href="/auth/signup" className="font-semibold hover:underline" style={{ color: '#E57200' }}>
           Create account
         </Link>
