@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { CATEGORIES } from '@/lib/constants'
+import { formatRelativeTime } from '@/lib/utils'
 import { Home, Tag, Car, Users, Search, CalendarDays } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -18,14 +19,17 @@ const CATEGORY_STYLES: Record<string, { bg: string; icon: string; border: string
 
 export async function CategoryGrid() {
   const supabase = await createClient()
-  const { data: counts } = await supabase
+  const { data: rows } = await supabase
     .from('listings')
-    .select('category')
+    .select('category, created_at')
     .eq('status', 'active')
+    .order('created_at', { ascending: false })
 
   const countMap: Record<string, number> = {}
-  for (const row of counts ?? []) {
+  const latestMap: Record<string, string> = {}
+  for (const row of rows ?? []) {
     countMap[row.category] = (countMap[row.category] ?? 0) + 1
+    if (!latestMap[row.category]) latestMap[row.category] = row.created_at
   }
 
   return (
@@ -34,6 +38,7 @@ export async function CategoryGrid() {
         const Icon = ICON_MAP[cat.icon] ?? Tag
         const style = CATEGORY_STYLES[cat.slug] ?? { bg: '#F8F7F4', icon: '#232D4B', border: '#e2e0db', hover: '#eeede9' }
         const count = countMap[cat.slug] ?? 0
+        const latest = latestMap[cat.slug]
         return (
           <Link
             key={cat.slug}
@@ -47,13 +52,18 @@ export async function CategoryGrid() {
             >
               <Icon className="h-5 w-5 sm:h-5 sm:w-5" style={{ color: style.icon }} />
             </div>
-            <div className="text-center">
+            <div className="text-center w-full">
               <div className="text-[10px] sm:text-[11px] font-bold leading-tight" style={{ color: '#232D4B' }}>
                 {cat.label}
               </div>
               <div className="text-[9px] sm:text-[10px] mt-0.5 font-medium" style={{ color: count > 0 ? style.icon : '#9ca3af' }}>
-                {count > 0 ? `${count}` : '—'}
+                {count > 0 ? `${count} active` : '—'}
               </div>
+              {latest && (
+                <div className="text-[9px] mt-0.5 text-gray-400 font-medium truncate">
+                  Latest: {formatRelativeTime(latest)}
+                </div>
+              )}
             </div>
           </Link>
         )

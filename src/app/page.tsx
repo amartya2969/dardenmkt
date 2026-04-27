@@ -4,6 +4,7 @@ import { ListingGrid, ListingGridSkeleton } from '@/components/listings/ListingG
 import { TeamGrid, TeamGridSkeleton } from '@/components/teams/TeamGrid'
 import { CategoryGrid } from '@/components/listings/CategoryGrid'
 import { SearchBar } from '@/components/listings/SearchBar'
+import { SafetyBanner } from '@/components/layout/SafetyBanner'
 import { Suspense } from 'react'
 import type { Listing, Team } from '@/types'
 import { ArrowRight, ShieldCheck, Zap, Users } from 'lucide-react'
@@ -129,6 +130,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Safety banner ── */}
+      <SafetyBanner />
 
       {/* ── Content ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
