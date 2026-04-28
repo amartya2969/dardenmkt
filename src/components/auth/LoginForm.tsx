@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
-import { SITE_URL } from '@/lib/constants'
-import { Mail, Lock, Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Mail, Lock, Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft, KeyRound } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -17,27 +16,36 @@ const schema = z.object({
 type Values = z.infer<typeof schema>
 
 const RESEND_COOLDOWN_S = 30
+const OTP_LENGTH = 6
 
 export function LoginForm({ errorParam }: { errorParam?: string }) {
   const [showPw, setShowPw] = useState(false)
-  const [magicSent, setMagicSent] = useState(false)
-  const [magicEmail, setMagicEmail] = useState('')
-  const [sendingMagic, setSendingMagic] = useState(false)
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpEmail, setOtpEmail] = useState('')
+  const [otp, setOtp] = useState('')
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [verifyError, setVerifyError] = useState<string | null>(null)
   const [resending, setResending] = useState(false)
   const [resendNote, setResendNote] = useState<string | null>(null)
   const [cooldown, setCooldown] = useState(0)
+  const otpInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, setError, getValues } = useForm<Values>({
     resolver: zodResolver(schema),
   })
 
-  // Tick cooldown down once per second
   useEffect(() => {
     if (cooldown <= 0) return
     const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000)
     return () => clearInterval(t)
   }, [cooldown])
+
+  // Autofocus OTP input on screen change
+  useEffect(() => {
+    if (otpSent) otpInputRef.current?.focus()
+  }, [otpSent])
 
   async function onSubmit(values: Values) {
     const supabase = createClient()
@@ -50,84 +58,161 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
     router.refresh()
   }
 
-  async function sendMagicLinkInternal(email: string) {
+  async function sendOtpInternal(email: string) {
     const supabase = createClient()
+    // shouldCreateUser:false → only existing users get a code (sign-in only)
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${SITE_URL}/auth/callback`, shouldCreateUser: false },
+      options: { shouldCreateUser: false },
     })
     return error
   }
 
-  async function sendMagicLink() {
+  async function sendOtp() {
     const email = getValues('email')
     if (!email.endsWith('@virginia.edu')) {
       setError('email', { message: 'Must be a @virginia.edu email' })
       return
     }
-    setSendingMagic(true)
-    await sendMagicLinkInternal(email)
-    setMagicEmail(email)
-    setMagicSent(true)
+    setSendingOtp(true)
+    await sendOtpInternal(email)
+    setOtpEmail(email)
+    setOtpSent(true)
     setCooldown(RESEND_COOLDOWN_S)
-    setSendingMagic(false)
+    setSendingOtp(false)
   }
 
-  async function resendMagicLink() {
+  async function resendOtp() {
     if (cooldown > 0 || resending) return
     setResending(true)
     setResendNote(null)
-    const error = await sendMagicLinkInternal(magicEmail)
+    const error = await sendOtpInternal(otpEmail)
     setResending(false)
     if (error) {
       setResendNote('Could not resend — please try again in a moment.')
       return
     }
-    setResendNote('Sent again. Check your inbox.')
+    setResendNote('New code sent. Check your inbox.')
     setCooldown(RESEND_COOLDOWN_S)
   }
 
-  if (magicSent) {
+  async function verifyCode(code: string) {
+    if (code.length !== OTP_LENGTH || verifying) return
+    setVerifying(true)
+    setVerifyError(null)
+    const supabase = createClient()
+    const { error } = await supabase.auth.verifyOtp({
+      email: otpEmail,
+      token: code,
+      type: 'email',
+    })
+    setVerifying(false)
+    if (error) {
+      setVerifyError(error.message.includes('expired') || error.message.includes('Token has expired')
+        ? 'Code expired. Request a new one.'
+        : 'Incorrect code. Check your email and try again.')
+      setOtp('')
+      otpInputRef.current?.focus()
+      return
+    }
+    router.push('/')
+    router.refresh()
+  }
+
+  function handleOtpChange(v: string) {
+    const digitsOnly = v.replace(/\D/g, '').slice(0, OTP_LENGTH)
+    setOtp(digitsOnly)
+    setVerifyError(null)
+    if (digitsOnly.length === OTP_LENGTH) {
+      // Auto-submit when 6 digits typed
+      verifyCode(digitsOnly)
+    }
+  }
+
+  // ── OTP entry screen ──
+  if (otpSent) {
     return (
-      <div className="text-center space-y-4 py-4">
-        <CheckCircle2 className="h-14 w-14 mx-auto" style={{ color: '#E57200' }} />
-        <h2 className="text-xl font-bold" style={{ color: '#232D4B' }}>Check your inbox</h2>
-        <p className="text-sm text-gray-500 leading-relaxed">
-          We sent a sign-in link to<br /><strong className="text-gray-700">{magicEmail}</strong>
-        </p>
-        <p className="text-xs text-gray-400">Expires in 1 hour · Check spam if needed</p>
+      <div className="space-y-5">
+        <div className="text-center space-y-3">
+          <CheckCircle2 className="h-14 w-14 mx-auto" style={{ color: '#E57200' }} />
+          <h2 className="text-xl font-bold" style={{ color: '#232D4B' }}>Enter your code</h2>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            We sent a 6-digit code to<br /><strong className="text-gray-700">{otpEmail}</strong>
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="otp" className="block text-sm font-semibold text-center" style={{ color: '#232D4B' }}>
+            6-digit code
+          </label>
+          <input
+            ref={otpInputRef}
+            id="otp"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            value={otp}
+            onChange={(e) => handleOtpChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') verifyCode(otp) }}
+            placeholder="000000"
+            disabled={verifying}
+            maxLength={OTP_LENGTH}
+            className="w-full h-14 text-center text-2xl tracking-[0.5em] font-bold rounded-xl border border-gray-200 outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all disabled:opacity-60"
+          />
+          {verifying && (
+            <p className="text-xs text-center text-gray-400 flex items-center justify-center gap-1.5">
+              <Loader2 className="h-3 w-3 animate-spin" /> Verifying…
+            </p>
+          )}
+          {verifyError && (
+            <p className="text-xs text-center text-red-600">{verifyError}</p>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => verifyCode(otp)}
+          disabled={otp.length !== OTP_LENGTH || verifying}
+          className="w-full h-11 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ backgroundColor: '#232D4B' }}
+        >
+          {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+          {verifying ? 'Verifying…' : 'Verify & Sign In'}
+        </button>
 
         {resendNote && (
-          <p className="text-xs font-medium" style={{ color: '#E57200' }}>{resendNote}</p>
+          <p className="text-xs text-center font-medium" style={{ color: '#E57200' }}>{resendNote}</p>
         )}
 
-        <div className="pt-2 space-y-3">
+        <div className="flex flex-col items-center gap-3 pt-1">
           <button
             type="button"
-            onClick={resendMagicLink}
+            onClick={resendOtp}
             disabled={cooldown > 0 || resending}
-            className="w-full h-10 rounded-xl font-medium text-sm text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+            className="text-sm font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
+            style={{ color: '#E57200' }}
           >
-            {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-            {resending
-              ? 'Resending…'
-              : cooldown > 0
-              ? `Resend in ${cooldown}s`
-              : 'Resend email'}
+            {resending ? 'Resending…' : cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}
           </button>
 
           <button
             type="button"
-            onClick={() => { setMagicSent(false); setMagicEmail(''); setResendNote(null); setCooldown(0) }}
+            onClick={() => {
+              setOtpSent(false); setOtpEmail(''); setOtp('')
+              setVerifyError(null); setResendNote(null); setCooldown(0)
+            }}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700"
           >
             <ArrowLeft className="h-3 w-3" /> Use a different email
           </button>
         </div>
+
+        <p className="text-[11px] text-center text-gray-400">Code expires in 1 hour · Check spam if needed</p>
       </div>
     )
   }
 
+  // ── Sign-in form ──
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {errorParam === 'domain' && (
@@ -191,10 +276,10 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
         <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-gray-400">or</span></div>
       </div>
 
-      <button type="button" onClick={sendMagicLink} disabled={sendingMagic}
+      <button type="button" onClick={sendOtp} disabled={sendingOtp}
         className="w-full h-11 rounded-xl font-medium text-sm text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2 transition-all disabled:opacity-60">
-        {sendingMagic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-        Sign in with email link
+        {sendingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+        Sign in with email code
       </button>
 
       <p className="text-center text-sm text-gray-500">
