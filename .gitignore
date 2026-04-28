@@ -44,3 +44,6 @@ next-env.d.ts
 
 # playwright
 .playwright-mcp/
+
+# Claude Code session files
+.claude/
