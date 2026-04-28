@@ -17,7 +17,7 @@ export function ChatWindow({ conversation, currentUserId, initialMessages }: Pro
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
   const isInitiator = conversation.initiator_id === currentUserId
@@ -38,9 +38,10 @@ export function ChatWindow({ conversation, currentUserId, initialMessages }: Pro
     return () => clearInterval(interval)
   }, [fetchMessages])
 
-  // Scroll to bottom on new messages
+  // Scroll the message list (not the page) to the bottom when messages change
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const list = listRef.current
+    if (list) list.scrollTop = list.scrollHeight
   }, [messages])
 
   async function sendMessage(e: React.FormEvent) {
@@ -70,7 +71,7 @@ export function ChatWindow({ conversation, currentUserId, initialMessages }: Pro
   return (
     <div className="flex flex-col h-full">
       {/* Message list */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {messages.length === 0 && (
           <p className="text-center text-sm text-gray-400 mt-8">No messages yet.</p>
         )}
@@ -94,7 +95,6 @@ export function ChatWindow({ conversation, currentUserId, initialMessages }: Pro
             </div>
           )
         })}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}

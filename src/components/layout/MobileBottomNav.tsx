@@ -30,10 +30,22 @@ export function MobileBottomNav() {
 
   useEffect(() => {
     if (!signedIn) { setUnread(0); return }
-    fetch('/api/messages/unread', { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((d) => setUnread(d.count ?? 0))
-      .catch(() => {})
+    let cancelled = false
+    const fetchUnread = () => {
+      fetch('/api/messages/unread', { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((d) => { if (!cancelled) setUnread(d.count ?? 0) })
+        .catch(() => {})
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 15_000)
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchUnread() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [signedIn, pathname])
 
   return (
