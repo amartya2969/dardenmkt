@@ -55,7 +55,7 @@ export function Navbar() {
       .then(({ data }) => setDisplayName(data?.full_name ?? null))
   }, [user, pathname])
 
-  // Keep unread count fresh: refetch on route change, every 15s while open, and on tab focus.
+  // Polling lives across the whole session — only restart when auth changes.
   useEffect(() => {
     if (!user) { setUnread(0); return }
     let cancelled = false
@@ -74,7 +74,17 @@ export function Navbar() {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisible)
     }
-  }, [user, pathname])
+  }, [user])
+
+  // One-shot refetch when the route changes (e.g. user just opened a conversation
+  // and the server marked it read). Doesn't tear down the interval.
+  useEffect(() => {
+    if (!user) return
+    fetch('/api/messages/unread', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => setUnread(d.count ?? 0))
+      .catch(() => {})
+  }, [pathname, user])
 
   async function signOut() {
     const supabase = createClient()

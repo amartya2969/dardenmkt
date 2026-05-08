@@ -47,6 +47,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
 
   const params = await searchParams
   const saved = params.saved === '1'
+  const errored = params.error === '1'
 
   async function updateProfile(formData: FormData) {
     'use server'
@@ -60,12 +61,12 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     const phone = ((formData.get('phone') as string) ?? '').trim() || null
     const bio = ((formData.get('bio') as string) ?? '').trim() || null
 
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({ full_name, school, year, phone, bio })
       .eq('id', user.id)
 
-    redirect('/profile?saved=1')
+    redirect(error ? '/profile?error=1' : '/profile?saved=1')
   }
 
   return (
@@ -81,6 +82,11 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
         {saved && (
           <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
             Profile saved successfully!
+          </div>
+        )}
+        {errored && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 font-medium">
+            Could not save your profile. Please try again.
           </div>
         )}
 

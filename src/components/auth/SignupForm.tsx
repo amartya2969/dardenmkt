@@ -26,6 +26,9 @@ export function SignupForm() {
   const [cooldown, setCooldown] = useState(0)
 
   const codeRef = useRef<HTMLInputElement>(null)
+  // Synchronous lock so simultaneous handlers (auto-submit + Enter keydown)
+  // can't both pass the guard and double-fire verifyOtp.
+  const verifyingRef = useRef(false)
 
   useEffect(() => {
     if (cooldown <= 0) return
@@ -73,22 +76,28 @@ export function SignupForm() {
 
   // ── Stage 2: verify OTP ──
   async function verifyCode(token: string) {
-    if (token.length !== OTP_LENGTH || busy) return
+    if (token.length !== OTP_LENGTH) return
+    if (verifyingRef.current) return
+    verifyingRef.current = true
     setBusy(true); setErr(null)
-    const supabase = createClient()
-    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
-    setBusy(false)
-    if (error) {
-      setErr(
-        error.message.includes('expired') || error.message.includes('Token has expired')
-          ? 'Code expired. Request a new one.'
-          : 'Incorrect code. Check your email and try again.'
-      )
-      setCode('')
-      codeRef.current?.focus()
-      return
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+      if (error) {
+        setErr(
+          error.message.includes('expired') || error.message.includes('Token has expired')
+            ? 'Code expired. Request a new one.'
+            : 'Incorrect code. Check your email and try again.'
+        )
+        setCode('')
+        codeRef.current?.focus()
+        return
+      }
+      setStage('password')
+    } finally {
+      verifyingRef.current = false
+      setBusy(false)
     }
-    setStage('password')
   }
 
   function handleCodeChange(v: string) {

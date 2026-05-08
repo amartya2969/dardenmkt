@@ -28,6 +28,7 @@ export function MobileBottomNav() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Polling: only restart when auth changes.
   useEffect(() => {
     if (!signedIn) { setUnread(0); return }
     let cancelled = false
@@ -46,7 +47,16 @@ export function MobileBottomNav() {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisible)
     }
-  }, [signedIn, pathname])
+  }, [signedIn])
+
+  // Refetch on route change without resetting the interval.
+  useEffect(() => {
+    if (!signedIn) return
+    fetch('/api/messages/unread', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => setUnread(d.count ?? 0))
+      .catch(() => {})
+  }, [pathname, signedIn])
 
   return (
     <nav

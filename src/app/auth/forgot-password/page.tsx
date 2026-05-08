@@ -27,6 +27,8 @@ export default function ForgotPasswordPage() {
   const [cooldown, setCooldown] = useState(0)
 
   const codeRef = useRef<HTMLInputElement>(null)
+  // Synchronous lock so auto-submit and Enter-keydown can't double-fire verifyOtp.
+  const verifyingRef = useRef(false)
 
   useEffect(() => {
     if (cooldown <= 0) return
@@ -52,7 +54,13 @@ export default function ForgotPasswordPage() {
       return
     }
     setBusy(true)
-    await sendCodeInternal(email)
+    try {
+      await sendCodeInternal(email)
+    } catch {
+      setErr('Could not send reset code. Check your connection and try again.')
+      setBusy(false)
+      return
+    }
     // Always advance — don't reveal whether the email is registered
     setStage('code')
     setCooldown(RESEND_COOLDOWN_S)
@@ -74,27 +82,33 @@ export default function ForgotPasswordPage() {
 
   // ── Stage 2: verify OTP code ──
   async function verifyCode(token: string) {
-    if (token.length !== OTP_LENGTH || busy) return
+    if (token.length !== OTP_LENGTH) return
+    if (verifyingRef.current) return
+    verifyingRef.current = true
     setBusy(true); setErr(null)
-    const supabase = createClient()
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'recovery',
-    })
-    setBusy(false)
-    if (error) {
-      setErr(
-        error.message.includes('expired') || error.message.includes('Token has expired')
-          ? 'Code expired. Request a new one.'
-          : 'Incorrect code. Check your email and try again.'
-      )
-      setCode('')
-      codeRef.current?.focus()
-      return
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'recovery',
+      })
+      if (error) {
+        setErr(
+          error.message.includes('expired') || error.message.includes('Token has expired')
+            ? 'Code expired. Request a new one.'
+            : 'Incorrect code. Check your email and try again.'
+        )
+        setCode('')
+        codeRef.current?.focus()
+        return
+      }
+      // Recovery session is now active — move to password stage
+      setStage('password')
+    } finally {
+      verifyingRef.current = false
+      setBusy(false)
     }
-    // Recovery session is now active — move to password stage
-    setStage('password')
   }
 
   function handleCodeChange(v: string) {

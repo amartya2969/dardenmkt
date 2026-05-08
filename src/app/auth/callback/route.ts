@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+// Only same-origin paths are permitted as ?next= targets.
+// Rejects: `//evil.com`, `https://evil.com`, anything not starting with `/`.
+function safeNext(raw: string | null): string {
+  if (!raw) return '/'
+  if (!raw.startsWith('/')) return '/'
+  if (raw.startsWith('//')) return '/'
+  return raw
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const next = safeNext(searchParams.get('next'))
   // Some flows (recovery, set-password) carry a token_hash + type instead of a code.
   const tokenHash = searchParams.get('token_hash')
   const type = searchParams.get('type') as 'magiclink' | 'recovery' | 'invite' | 'signup' | 'email_change' | null

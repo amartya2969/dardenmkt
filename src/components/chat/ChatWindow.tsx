@@ -18,7 +18,11 @@ export function ChatWindow({ conversation, currentUserId, initialMessages }: Pro
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
   const listRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
+  // Create the Supabase client exactly once — recreating it on every render
+  // would cause the polling interval to reset on every message state change.
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
+  if (!supabaseRef.current) supabaseRef.current = createClient()
+  const supabase = supabaseRef.current
 
   const isInitiator = conversation.initiator_id === currentUserId
   const canSend = conversation.status === 'accepted' || isInitiator
