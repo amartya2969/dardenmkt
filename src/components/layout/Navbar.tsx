@@ -13,15 +13,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, Plus, LogOut, LayoutList, Settings, Bookmark, MessageCircle } from 'lucide-react'
 import { CATEGORIES } from '@/lib/constants'
-
-function computeInitials(name: string | null | undefined, emailFallback: string | null | undefined): string {
-  if (name && name.trim()) {
-    const parts = name.trim().split(/\s+/)
-    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-    return parts[0][0].toUpperCase()
-  }
-  return (emailFallback?.[0] ?? '?').toUpperCase()
-}
+import { computeInitials } from '@/lib/initials'
 
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null)
