@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Mail, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
 
 const RESEND_COOLDOWN_S = 30
 
-type Stage = 'email' | 'sent'
+type Stage = 'email' | 'sent' | 'exists'
 
 export function SignupForm() {
   const [stage, setStage] = useState<Stage>('email')
@@ -42,6 +43,25 @@ export function SignupForm() {
       return
     }
     setBusy(true)
+    // Pre-flight: tell the user upfront if an account already exists so they
+    // don't get confused by a "sign-in link" arriving from a "sign-up" form.
+    try {
+      const res = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const { exists } = (await res.json()) as { exists: boolean }
+      if (exists) {
+        setBusy(false)
+        setStage('exists')
+        return
+      }
+    } catch {
+      // Soft-fail: if the check itself errors, fall through to signInWithOtp
+      // and let Supabase's own behavior take over. Better than blocking signup.
+    }
+
     const { error } = await sendLink(email)
     setBusy(false)
     if (error) { setErr(error.message); return }
@@ -85,6 +105,41 @@ export function SignupForm() {
             We&apos;ll email you a one-time link. You&apos;ll set your password after clicking it.
           </p>
         </form>
+      )}
+
+      {/* ── Stage: account already exists ── */}
+      {stage === 'exists' && (
+        <div className="space-y-5">
+          <div className="text-center space-y-3">
+            <Mail className="h-14 w-14 mx-auto" style={{ color: '#232D4B' }} />
+            <h2 className="text-xl font-bold" style={{ color: '#232D4B' }}>Account already exists</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              <strong className="text-gray-700">{email}</strong> is already registered.<br />
+              Sign in with your password instead.
+            </p>
+          </div>
+
+          <Link
+            href="/auth/login"
+            className="w-full h-11 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
+            style={{ backgroundColor: '#232D4B' }}>
+            Go to Sign In
+          </Link>
+
+          <div className="flex flex-col items-center gap-2 pt-1">
+            <Link
+              href="/auth/forgot-password"
+              className="text-sm font-medium hover:underline"
+              style={{ color: '#E57200' }}>
+              Forgot your password?
+            </Link>
+            <button type="button"
+              onClick={() => { setStage('email'); setErr(null); setNote(null); setCooldown(0) }}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700">
+              <ArrowLeft className="h-3 w-3" /> Use a different email
+            </button>
+          </div>
+        </div>
       )}
 
       {/* ── Stage: link sent ── */}
