@@ -1,7 +1,15 @@
 import { z } from 'zod'
 import { CATEGORIES, LOCATIONS } from './constants'
+import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from './email-domain'
 
 const categorySlugs = CATEGORIES.map((c) => c.slug) as [string, ...string[]]
+
+// Re-usable Zod email validator that accepts both @virginia.edu and
+// @darden.virginia.edu. .endsWith() can't express OR, so use .refine().
+const uvaEmail = z
+  .string()
+  .email('Invalid email')
+  .refine(isAllowedUvaEmail, { message: `Must be a ${ALLOWED_EMAIL_HINT} email` })
 
 export const listingSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(150),
@@ -10,7 +18,7 @@ export const listingSchema = z.object({
   subcategory: z.string().optional(),
   price: z.string().optional(),
   price_label: z.string().optional(),
-  contact_email: z.string().email('Invalid email').endsWith('@virginia.edu', 'Must be a @virginia.edu email'),
+  contact_email: uvaEmail,
   location: z.string().optional(),
   images: z.array(z.string()).max(5, 'Maximum 5 images'),
   metadata: z.object({
@@ -45,16 +53,13 @@ export const teamSchema = z.object({
   skills_needed: z.array(z.string()).max(10).optional(),
   spots_available: z.number().min(1).max(20),
   deadline: z.string().optional(),
-  contact_email: z.string().email('Invalid email').endsWith('@virginia.edu', 'Must be a @virginia.edu email'),
+  contact_email: uvaEmail,
 })
 
 export type TeamFormValues = z.infer<typeof teamSchema>
 
 export const loginSchema = z.object({
-  email: z
-    .string()
-    .email('Invalid email address')
-    .endsWith('@virginia.edu', 'Must be a @virginia.edu email address'),
+  email: uvaEmail,
 })
 
 export type LoginFormValues = z.infer<typeof loginSchema>

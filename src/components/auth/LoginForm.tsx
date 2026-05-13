@@ -5,12 +5,16 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
+import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
 import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 const schema = z.object({
-  email: z.string().email('Invalid email').endsWith('@virginia.edu', 'Must be a @virginia.edu email'),
+  email: z
+    .string()
+    .email('Invalid email')
+    .refine(isAllowedUvaEmail, { message: `Must be a ${ALLOWED_EMAIL_HINT} email` }),
   password: z.string().min(1, 'Password is required'),
 })
 type Values = z.infer<typeof schema>
@@ -38,7 +42,7 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {errorParam === 'domain' && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-          Only @virginia.edu email addresses are allowed.
+          Only {ALLOWED_EMAIL_HINT} addresses are allowed.
         </div>
       )}
       {errorParam === 'auth' && (

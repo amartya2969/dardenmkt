@@ -125,4 +125,17 @@ describe('loginSchema', () => {
   it('accepts a valid @virginia.edu email', () => {
     expect(loginSchema.safeParse({ email: 'mst3k@virginia.edu' }).success).toBe(true)
   })
+
+  it('accepts a valid @darden.virginia.edu email', () => {
+    expect(loginSchema.safeParse({ email: 'VatsA27@darden.virginia.edu' }).success).toBe(true)
+  })
+
+  it('is case-insensitive about the domain', () => {
+    expect(loginSchema.safeParse({ email: 'student@DARDEN.VIRGINIA.EDU' }).success).toBe(true)
+  })
+
+  it('rejects look-alike domains', () => {
+    expect(loginSchema.safeParse({ email: 'me@evil-virginia.edu' }).success).toBe(false)
+    expect(loginSchema.safeParse({ email: 'me@virginia.edu.evil.com' }).success).toBe(false)
+  })
 })

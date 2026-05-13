@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
 import { Mail, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
 
 const RESEND_COOLDOWN_S = 30
@@ -38,8 +39,8 @@ export function SignupForm() {
   async function handleSendLink(e: React.FormEvent) {
     e.preventDefault()
     setErr(null); setNote(null)
-    if (!email.endsWith('@virginia.edu')) {
-      setErr('Only @virginia.edu email addresses are allowed.')
+    if (!isAllowedUvaEmail(email)) {
+      setErr(`Only ${ALLOWED_EMAIL_HINT} addresses are allowed.`)
       return
     }
     setBusy(true)

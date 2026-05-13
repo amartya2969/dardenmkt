@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
+import { isAllowedUvaEmail } from '@/lib/email-domain'
 
 // Calls Supabase's admin REST API to look up a user by email.
 // Service role key must be kept server-side — never expose to the browser.
 export async function POST(request: Request) {
   try {
     const { email } = (await request.json()) as { email?: string }
-    if (!email || typeof email !== 'string' || !email.endsWith('@virginia.edu')) {
+    if (!email || typeof email !== 'string' || !isAllowedUvaEmail(email)) {
       // Don't even bother hitting Supabase for invalid input.
       return NextResponse.json({ exists: false }, { status: 200 })
     }
