@@ -44,6 +44,12 @@ export function SignupForm() {
       setErr('Password must be at least 8 characters.')
       return
     }
+    // bcrypt (used by Supabase) silently truncates beyond 72 bytes — reject
+    // here so the failure is loud, before the server even sees it.
+    if (new TextEncoder().encode(password).length > 72) {
+      setErr('Password is too long (max 72 bytes — about 72 characters).')
+      return
+    }
     if (password !== confirm) {
       setErr("Passwords don't match.")
       return
@@ -135,7 +141,7 @@ export function SignupForm() {
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
-            placeholder="At least 8 characters" minLength={8} required autoComplete="new-password"
+            placeholder="At least 8 characters" minLength={8} maxLength={72} required autoComplete="new-password"
             className="w-full pl-9 pr-10 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
           />
           <button type="button" onClick={() => setShowPw((s) => !s)}
@@ -154,7 +160,7 @@ export function SignupForm() {
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type={showPw ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Re-enter password" minLength={8} required autoComplete="new-password"
+            placeholder="Re-enter password" minLength={8} maxLength={72} required autoComplete="new-password"
             className="w-full pl-9 pr-4 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
           />
         </div>
