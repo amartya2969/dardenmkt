@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isAllowedUvaEmail } from '@/lib/email-domain'
+import { isAdminEmail } from '@/lib/admin'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -33,8 +34,10 @@ export async function updateSession(request: NextRequest) {
     (p) => url.pathname.startsWith(p) && url.pathname.includes('/edit')
   ) || url.pathname === '/listings/new' || url.pathname === '/my-listings'
 
-  // Enforce allowed UVA email domains (virginia.edu or darden.virginia.edu)
-  if (user && !isAllowedUvaEmail(user.email)) {
+  // Enforce allowed UVA email domains (virginia.edu or darden.virginia.edu).
+  // Admins listed in ADMIN_EMAILS bypass this — staff don't need to follow
+  // the tenant-email rule and may use Gmail / other personal accounts.
+  if (user && !isAllowedUvaEmail(user.email) && !isAdminEmail(user.email)) {
     await supabase.auth.signOut()
     url.pathname = '/auth/login'
     url.searchParams.set('error', 'domain')
