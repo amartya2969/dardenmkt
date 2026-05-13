@@ -13,7 +13,7 @@ type Request = {
   reviewed_at: string | null
 }
 
-type Approval = { email: string; name: string; tempPassword: string }
+type Approval = { email: string; name: string; tempPassword: string | null; userChosePassword: boolean }
 
 export function JoinRequestsAdmin() {
   const [requests, setRequests] = useState<Request[]>([])
@@ -51,8 +51,13 @@ export function JoinRequestsAdmin() {
       })
       const data = await res.json()
       if (!res.ok) { alert(data.error ?? 'Failed.'); return }
-      if (action === 'approve' && data.tempPassword) {
-        setApproval({ email: data.email, name: data.name, tempPassword: data.tempPassword })
+      if (action === 'approve') {
+        setApproval({
+          email: data.email,
+          name: data.name,
+          tempPassword: data.tempPassword ?? null,
+          userChosePassword: !!data.userChosePassword,
+        })
       }
       await load()
     } finally {
@@ -62,27 +67,34 @@ export function JoinRequestsAdmin() {
 
   return (
     <div className="space-y-4">
-      {/* Approval reveal — admin must copy this somewhere before dismissing */}
+      {/* Approval reveal — varies by whether the user chose their own password */}
       {approval && (
-        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
+        <div className="rounded-2xl border-2 border-green-300 bg-green-50 p-5">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <h3 className="font-bold text-amber-900">User created — share these credentials</h3>
-              <p className="text-xs text-amber-700 mt-0.5">
-                Send these to <strong>{approval.name}</strong> via UVA email or Slack. The temp password
-                won&apos;t be shown again — copy it now.
+              <h3 className="font-bold text-green-900">
+                {approval.userChosePassword
+                  ? `${approval.name} can now sign in`
+                  : 'User created — share these credentials'}
+              </h3>
+              <p className="text-xs text-green-700 mt-0.5">
+                {approval.userChosePassword
+                  ? <>They already know the password they set during their request. No action needed from you.</>
+                  : <>Legacy request without a stored password — send these to <strong>{approval.name}</strong> via UVA email or Slack. The temp password won&apos;t be shown again.</>}
               </p>
             </div>
             <button onClick={() => setApproval(null)}
-              className="text-amber-700 hover:text-amber-900 text-sm font-medium">
+              className="text-green-700 hover:text-green-900 text-sm font-medium">
               Dismiss
             </button>
           </div>
-          <div className="space-y-2 text-sm font-mono">
-            <CredRow label="Email" value={approval.email} />
-            <CredRow label="Temp password" value={approval.tempPassword} />
-            <CredRow label="Sign in at" value={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/login`} />
-          </div>
+          {!approval.userChosePassword && approval.tempPassword && (
+            <div className="space-y-2 text-sm font-mono">
+              <CredRow label="Email" value={approval.email} />
+              <CredRow label="Temp password" value={approval.tempPassword} />
+              <CredRow label="Sign in at" value={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/login`} />
+            </div>
+          )}
         </div>
       )}
 

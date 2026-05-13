@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
-import { Mail, User as UserIcon, Loader2, MailCheck, ArrowLeft, Clock, AlertCircle } from 'lucide-react'
+import { Mail, User as UserIcon, Lock, Eye, EyeOff, Loader2, MailCheck, ArrowLeft, Clock, AlertCircle } from 'lucide-react'
 
 /**
  * Short-term workaround: UVA ITS is filtering inbound auth mail, so we can't
@@ -22,6 +22,9 @@ export function SignupForm() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [reason, setReason] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [showPw, setShowPw] = useState(false)
 
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -37,12 +40,25 @@ export function SignupForm() {
       setErr('Please enter your full name.')
       return
     }
+    if (password.length < 8) {
+      setErr('Password must be at least 8 characters.')
+      return
+    }
+    if (password !== confirm) {
+      setErr("Passwords don't match.")
+      return
+    }
     setBusy(true)
     try {
       const res = await fetch('/api/auth/request-join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), name: name.trim(), reason: reason.trim() }),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          name: name.trim(),
+          reason: reason.trim(),
+          password,
+        }),
       })
       const data = (await res.json()) as {
         status?: 'submitted' | 'request_exists' | 'account_exists'
@@ -113,6 +129,37 @@ export function SignupForm() {
         />
       </div>
 
+      <div className="space-y-1.5">
+        <label className="block text-sm font-semibold" style={{ color: '#232D4B' }}>Choose a Password</label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
+            placeholder="At least 8 characters" minLength={8} required autoComplete="new-password"
+            className="w-full pl-9 pr-10 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
+          />
+          <button type="button" onClick={() => setShowPw((s) => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+        <p className="text-[11px] text-gray-400">
+          You&apos;ll use this to sign in once your request is approved.
+        </p>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="block text-sm font-semibold" style={{ color: '#232D4B' }}>Confirm Password</label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type={showPw ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)}
+            placeholder="Re-enter password" minLength={8} required autoComplete="new-password"
+            className="w-full pl-9 pr-4 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
+          />
+        </div>
+      </div>
+
       <button type="submit" disabled={busy}
         className="w-full h-11 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60"
         style={{ backgroundColor: '#E57200' }}>
@@ -135,8 +182,9 @@ export function SignupForm() {
             <h2 className="text-xl font-bold" style={{ color: '#232D4B' }}>Request received</h2>
             <p className="text-sm text-gray-500 leading-relaxed">
               We&apos;ll review your request for<br />
-              <strong className="text-gray-700">{email}</strong><br />
-              and email you back with sign-in details, usually within a day.
+              <strong className="text-gray-700">{email}</strong>.<br />
+              Once approved, sign in at <Link href="/auth/login" className="font-medium hover:underline" style={{ color: '#E57200' }}>/auth/login</Link> with
+              the password you just chose.
             </p>
           </>
         )}

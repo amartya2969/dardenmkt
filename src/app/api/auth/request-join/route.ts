@@ -4,7 +4,7 @@ import { isAllowedUvaEmail } from '@/lib/email-domain'
 // Public endpoint — anyone can submit a request. No rate-limiting yet;
 // the unique constraint on email prevents duplicate spam from one address.
 export async function POST(request: Request) {
-  let body: { email?: string; name?: string; reason?: string }
+  let body: { email?: string; name?: string; reason?: string; password?: string }
   try {
     body = await request.json()
   } catch {
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   const email = body.email?.trim().toLowerCase() ?? ''
   const name = body.name?.trim() ?? ''
   const reason = body.reason?.trim() ?? ''
+  const password = body.password ?? ''
 
   if (!email || !isAllowedUvaEmail(email)) {
     return NextResponse.json(
@@ -23,6 +24,13 @@ export async function POST(request: Request) {
   }
   if (!name || name.length < 2) {
     return NextResponse.json({ error: 'Please enter your full name.' }, { status: 400 })
+  }
+  if (password.length < 8) {
+    return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 })
+  }
+  if (password.length > 72) {
+    // bcrypt has a 72-byte limit — reject before hitting Supabase
+    return NextResponse.json({ error: 'Password is too long (max 72 chars).' }, { status: 400 })
   }
   if (reason.length > 500) {
     return NextResponse.json({ error: 'Reason is too long (max 500 chars).' }, { status: 400 })
@@ -69,7 +77,7 @@ export async function POST(request: Request) {
       'Content-Type': 'application/json',
       Prefer: 'return=representation',
     },
-    body: JSON.stringify({ email, name, reason: reason || null }),
+    body: JSON.stringify({ email, name, reason: reason || null, pending_password: password }),
   })
 
   if (insertRes.status === 201) {

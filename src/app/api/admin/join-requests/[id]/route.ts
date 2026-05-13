@@ -7,13 +7,15 @@ import { isAdminEmail } from '@/lib/admin'
 // Body: { action: 'approve' | 'reject' }
 //
 // On approve:
-//   1. Creates a real auth user with email_confirm=true and a freshly
-//      generated 12-char password.
-//   2. Marks the join_request as approved.
-//   3. Returns the temp password ONCE in the response so the admin can
-//      hand it to the user (out-of-band, since UVA ITS may filter mail).
+//   1. Reads the password the user supplied at request time
+//      (join_requests.pending_password).
+//   2. Creates a real auth user with email_confirm=true using that password.
+//   3. Marks the join_request as approved AND nulls pending_password in the
+//      same PATCH so plain text is wiped from the DB immediately.
+//   4. Falls back to a generated temp password for legacy rows that don't
+//      have one stored — returned to the admin to share out-of-band.
 //
-// On reject: just flips status to 'rejected'.
+// On reject: flips status to 'rejected' and nulls pending_password.
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -50,7 +52,7 @@ export async function PATCH(
     { headers: adminHeaders, cache: 'no-store' }
   )
   const rows = (await lookupRes.json()) as Array<{
-    id: string; email: string; name: string; status: string
+    id: string; email: string; name: string; status: string; pending_password: string | null
   }>
   const req = rows[0]
   if (!req) return NextResponse.json({ error: 'Request not found' }, { status: 404 })
@@ -71,6 +73,8 @@ export async function PATCH(
           status: 'rejected',
           reviewed_at: new Date().toISOString(),
           reviewed_by: auth.user.id,
+          // Wipe any stored password — no longer needed.
+          pending_password: null,
         }),
       }
     )
@@ -81,16 +85,20 @@ export async function PATCH(
     return NextResponse.json({ error: 'action must be approve or reject' }, { status: 400 })
   }
 
-  // 12-byte base64 → ~16 readable chars; ample entropy for a temp password
-  // the admin shares out-of-band and the user replaces on first sign-in.
-  const tempPassword = randomBytes(12).toString('base64url').slice(0, 14)
+  // Preferred path: use the password the user picked when submitting the
+  // request, so they can log in immediately with credentials they already know.
+  // Fallback: generate one for legacy rows (created before the password column
+  // existed) — admin can copy and share it.
+  const useUserPassword = !!req.pending_password
+  const passwordToUse =
+    req.pending_password ?? randomBytes(12).toString('base64url').slice(0, 14)
 
   const createRes = await fetch(`${url}/auth/v1/admin/users`, {
     method: 'POST',
     headers: adminHeaders,
     body: JSON.stringify({
       email: req.email,
-      password: tempPassword,
+      password: passwordToUse,
       email_confirm: true,
       user_metadata: { full_name: req.name, source: 'admin_approval' },
     }),
@@ -118,6 +126,8 @@ export async function PATCH(
         status: 'approved',
         reviewed_at: new Date().toISOString(),
         reviewed_by: auth.user.id,
+        // Plain-text password is no longer needed — wipe it.
+        pending_password: null,
       }),
     }
   )
@@ -126,6 +136,9 @@ export async function PATCH(
     status: 'approved',
     email: req.email,
     name: req.name,
-    tempPassword,
+    // Only surface a password to the admin when one had to be generated
+    // (legacy rows). When the user chose their own, they already know it.
+    tempPassword: useUserPassword ? null : passwordToUse,
+    userChosePassword: useUserPassword,
   })
 }
