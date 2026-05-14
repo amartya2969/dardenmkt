@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
+import { LinkedInButton } from './LinkedInButton'
 import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -39,6 +40,13 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
   }
 
   return (
+    <div className="space-y-4">
+      <LinkedInButton />
+      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400">
+        <div className="flex-1 h-px bg-gray-200" />
+        Or sign in with email
+        <div className="flex-1 h-px bg-gray-200" />
+      </div>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {errorParam === 'domain' && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
@@ -105,5 +113,6 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
         </Link>
       </p>
     </form>
+    </div>
   )
 }

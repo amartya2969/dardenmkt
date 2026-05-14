@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
+import { LinkedInButton } from './LinkedInButton'
 import { Mail, User as UserIcon, Lock, Eye, EyeOff, Loader2, MailCheck, ArrowLeft, Clock, AlertCircle } from 'lucide-react'
 
 /**
@@ -90,10 +91,23 @@ export function SignupForm() {
 
   // ─── Form ───
   if (stage === 'form') return (
+    <div className="space-y-4">
+      <LinkedInButton />
+      <p className="text-center text-[11px] text-gray-400">
+        Fastest way in — works for everyone, no UVA email needed.
+      </p>
+
+      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400 pt-2">
+        <div className="flex-1 h-px bg-gray-200" />
+        Or request UVA access
+        <div className="flex-1 h-px bg-gray-200" />
+      </div>
+
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 leading-relaxed">
-        Sign-up by direct email is temporarily unavailable while we resolve a UVA ITS mail-filter
-        issue. Submit a request below — we&apos;ll review and email back with sign-in details.
+        Direct UVA email sign-up is temporarily slow while we resolve a UVA ITS mail-filter
+        issue. Submit a request below — we&apos;ll approve and you can sign in with the
+        password you choose.
       </div>
 
       {err && <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{err}</div>}
@@ -176,6 +190,7 @@ export function SignupForm() {
         Already approved? <Link href="/auth/login" className="font-medium hover:underline" style={{ color: '#232D4B' }}>Sign in</Link>
       </p>
     </form>
+    </div>
   )
 
   // ─── Success / status screens ───

@@ -35,9 +35,14 @@ export async function updateSession(request: NextRequest) {
   ) || url.pathname === '/listings/new' || url.pathname === '/my-listings'
 
   // Enforce allowed UVA email domains (virginia.edu or darden.virginia.edu).
-  // Admins listed in ADMIN_EMAILS bypass this — staff don't need to follow
-  // the tenant-email rule and may use Gmail / other personal accounts.
-  if (user && !isAllowedUvaEmail(user.email) && !isAdminEmail(user.email)) {
+  // Two carve-outs:
+  //   1. Admins listed in ADMIN_EMAILS bypass this (Gmail etc.).
+  //   2. OAuth users (e.g. LinkedIn) bypass this — they may not have a UVA
+  //      email at all, and the assumption is that LinkedIn-verified identity
+  //      is enough to grant access to the broader UVMkt network.
+  const provider = user?.app_metadata?.provider
+  const isOAuthUser = !!provider && provider !== 'email'
+  if (user && !isOAuthUser && !isAllowedUvaEmail(user.email) && !isAdminEmail(user.email)) {
     await supabase.auth.signOut()
     url.pathname = '/auth/login'
     url.searchParams.set('error', 'domain')
