@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
 import { Mail, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -25,10 +24,20 @@ export default function ForgotPasswordPage() {
     return () => clearInterval(t)
   }, [cooldown])
 
-  async function sendLink(addr: string) {
-    const supabase = createClient()
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent('/auth/set-password?mode=reset')}`
-    return supabase.auth.resetPasswordForEmail(addr, { redirectTo })
+  // POSTs to our server-side route which uses admin.generateLink + Resend
+  // so the link domain stays on uvdardenmkt.com, not supabase.co.
+  async function sendLink(addr: string): Promise<boolean> {
+    try {
+      const res = await fetch('/api/auth/send-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: addr, mode: 'recovery' }),
+      })
+      const data = (await res.json()) as { ok?: boolean }
+      return !!data.ok
+    } catch {
+      return false
+    }
   }
 
   async function handleSendLink(e: React.FormEvent) {
@@ -39,14 +48,8 @@ export default function ForgotPasswordPage() {
       return
     }
     setBusy(true)
-    try {
-      await sendLink(email)
-    } catch {
-      setErr('Could not send reset link. Check your connection and try again.')
-      setBusy(false)
-      return
-    }
-    // Always advance — don't reveal whether the email is registered
+    await sendLink(email)
+    // Always advance — don't reveal whether the email is registered.
     setStage('sent')
     setCooldown(RESEND_COOLDOWN_S)
     setBusy(false)
@@ -55,10 +58,10 @@ export default function ForgotPasswordPage() {
   async function handleResend() {
     if (cooldown > 0 || busy) return
     setBusy(true); setNote(null); setErr(null)
-    const { error } = await sendLink(email)
+    const ok = await sendLink(email)
     setBusy(false)
-    if (error) {
-      setNote('Could not resend — please try again in a moment.')
+    if (!ok) {
+      setNote('Could not resend. Please try again in a moment.')
       return
     }
     setNote('New link sent. Check your inbox.')

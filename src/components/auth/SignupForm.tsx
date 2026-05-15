@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
 import { LinkedInButton } from './LinkedInButton'
 import { MicrosoftButton } from './MicrosoftButton'
@@ -40,13 +39,21 @@ export function SignupForm() {
     return () => clearInterval(t)
   }, [cooldown])
 
-  async function sendLink(addr: string) {
-    const supabase = createClient()
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent('/auth/set-password?mode=signup')}`
-    return supabase.auth.signInWithOtp({
-      email: addr,
-      options: { shouldCreateUser: true, emailRedirectTo: redirectTo },
+  // POSTs to our server-side route which uses admin.generateLink + Resend.
+  // Returns null on success, an error string otherwise, or 'exists' if the
+  // address already has an account.
+  async function sendLink(addr: string): Promise<'ok' | 'exists' | string> {
+    const res = await fetch('/api/auth/send-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: addr, mode: 'signup' }),
     })
+    const data = (await res.json()) as {
+      ok?: boolean; error?: string; message?: string
+    }
+    if (data.ok) return 'ok'
+    if (data.error === 'account_exists') return 'exists'
+    return data.message || data.error || 'Could not send link.'
   }
 
   async function handleSendLink(e: React.FormEvent) {
@@ -57,27 +64,10 @@ export function SignupForm() {
       return
     }
     setBusy(true)
-    // Pre-flight existence check so existing users get a clear "sign in" prompt
-    // instead of a silent magic link sent to their already-registered email.
-    try {
-      const res = await fetch('/api/auth/check-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      const { exists } = (await res.json()) as { exists: boolean }
-      if (exists) {
-        setBusy(false)
-        setStage('exists')
-        return
-      }
-    } catch {
-      // Soft-fail; fall through to signInWithOtp.
-    }
-
-    const { error } = await sendLink(email)
+    const result = await sendLink(email)
     setBusy(false)
-    if (error) { setErr(error.message); return }
+    if (result === 'exists') { setStage('exists'); return }
+    if (result !== 'ok') { setErr(result); return }
     setStage('sent')
     setCooldown(RESEND_COOLDOWN_S)
   }
@@ -85,9 +75,9 @@ export function SignupForm() {
   async function handleResend() {
     if (cooldown > 0 || busy) return
     setBusy(true); setNote(null); setErr(null)
-    const { error } = await sendLink(email)
+    const result = await sendLink(email)
     setBusy(false)
-    if (error) { setNote('Could not resend. Please try again in a moment.'); return }
+    if (result !== 'ok') { setNote('Could not resend. Please try again in a moment.'); return }
     setNote('New link sent. Check your inbox or quarantine folder.')
     setCooldown(RESEND_COOLDOWN_S)
   }
