@@ -4,12 +4,32 @@ import { useState } from 'react'
 import { MessageCircle, Send, X, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-export function ChatButton({ listingId, listingTitle }: { listingId: string; listingTitle: string }) {
+/**
+ * Send-a-message button used on both Listing and Team detail pages.
+ * Pass exactly one of `listingId` or `teamId`. The server enforces this too.
+ */
+type Props = {
+  listingId?: string
+  teamId?: string
+  title: string
+  // Label override — defaults to "Message Seller" for listings,
+  // "Message Poster" for teams. Mostly for backward-compat with callers
+  // that pass a custom label.
+  cta?: string
+}
+
+export function ChatButton({ listingId, teamId, title, cta }: Props) {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+
+  const isTeam = !!teamId
+  const buttonLabel = cta ?? (isTeam ? 'Message Poster' : 'Message Seller')
+  const placeholder = isTeam
+    ? `Hi, I'm interested in joining "${title}"…`
+    : `Hi, I'm interested in "${title}"…`
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -20,7 +40,9 @@ export function ChatButton({ listingId, listingTitle }: { listingId: string; lis
       const res = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId, message }),
+        body: JSON.stringify(
+          isTeam ? { teamId, message } : { listingId, message }
+        ),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Failed to send.'); setLoading(false); return }
@@ -39,7 +61,7 @@ export function ChatButton({ listingId, listingTitle }: { listingId: string; lis
         style={{ backgroundColor: '#232D4B' }}
       >
         <MessageCircle className="h-4 w-4" />
-        Message Seller
+        {buttonLabel}
       </button>
     )
   }
@@ -50,7 +72,7 @@ export function ChatButton({ listingId, listingTitle }: { listingId: string; lis
         <textarea
           value={message}
           onChange={e => setMessage(e.target.value)}
-          placeholder={`Hi, I'm interested in "${listingTitle}"…`}
+          placeholder={placeholder}
           rows={4}
           maxLength={2000}
           autoFocus

@@ -164,7 +164,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
                   </Button>
                 </div>
               ) : !isOwner ? (
-                <ChatButton listingId={l.id} listingTitle={l.title} />
+                <ChatButton listingId={l.id} title={l.title} />
               ) : (
                 <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-blue-700 text-center">
                   This is your listing

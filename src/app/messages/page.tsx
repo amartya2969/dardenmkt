@@ -17,6 +17,7 @@ export default async function MessagesPage() {
     .select(`
       *,
       listing:listings(id, title, images),
+      team:teams(id, title),
       initiator:profiles!conversations_initiator_id_fkey(full_name, email),
       responder:profiles!conversations_responder_id_fkey(full_name, email),
       messages(id, content, sender_id, created_at)
@@ -70,7 +71,8 @@ export default async function MessagesPage() {
             )}
           </div>
           <p className="text-xs text-gray-400 truncate mt-0.5">
-            {c.listing?.title ?? 'Listing deleted'}
+            {c.listing?.title ?? c.team?.title ?? 'Post deleted'}
+            {c.team && <span className="ml-1 text-[10px] uppercase tracking-wider text-gray-300">· Team</span>}
           </p>
           {last && (
             <p className="text-xs text-gray-500 truncate mt-0.5">{last.content}</p>

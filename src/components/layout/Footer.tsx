@@ -54,9 +54,14 @@ export function Footer() {
             <ul className="space-y-2">
               <li><Link href="/auth/login" className="text-sm text-blue-300 hover:text-white transition-colors">Sign In</Link></li>
               <li><Link href="/listings/new" className="text-sm text-blue-300 hover:text-white transition-colors">Post a Listing</Link></li>
-              <li><Link href="/my-listings" className="text-sm text-blue-300 hover:text-white transition-colors">My Listings</Link></li>
+              <li><Link href="/my-listings" className="text-sm text-blue-300 hover:text-white transition-colors">My Posts</Link></li>
               <li><Link href="/teams" className="text-sm text-blue-300 hover:text-white transition-colors">Team Matching</Link></li>
               <li><Link href="/teams/new" className="text-sm text-blue-300 hover:text-white transition-colors">Post a Team</Link></li>
+              <li>
+                <Link href="/report-bug" className="text-sm text-blue-300 hover:text-white transition-colors inline-flex items-center gap-1">
+                  🐛 Report a Bug
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

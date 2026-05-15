@@ -40,6 +40,7 @@ export default async function ConversationPage({
     .select(`
       *,
       listing:listings(id, title, images),
+      team:teams(id, title),
       initiator:profiles!conversations_initiator_id_fkey(full_name, email),
       responder:profiles!conversations_responder_id_fkey(full_name, email)
     `)
@@ -105,6 +106,15 @@ export default async function ConversationPage({
                   >
                     <ShoppingBag className="h-3 w-3" />
                     {conversation.listing.title}
+                  </Link>
+                )}
+                {conversation.team && (
+                  <Link
+                    href={`/teams/${conversation.team.id}`}
+                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mt-0.5"
+                  >
+                    <ShoppingBag className="h-3 w-3" />
+                    {conversation.team.title} · Team
                   </Link>
                 )}
               </div>

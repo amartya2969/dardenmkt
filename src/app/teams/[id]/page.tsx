@@ -7,6 +7,7 @@ import { ArrowLeft, Users, Calendar, Mail, Clock, Pencil } from 'lucide-react'
 import type { Team } from '@/types'
 import type { Metadata } from 'next'
 import { CopyEmailButton } from '@/components/CopyEmailButton'
+import { ChatButton } from '@/components/chat/ChatButton'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -122,9 +123,18 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ id:
               )}
             </div>
 
-            <div className="pt-2 border-t border-gray-100">
+            <div className="pt-2 border-t border-gray-100 space-y-2">
               {user ? (
-                <CopyEmailButton email={t.contact_email} label="Copy Contact Email" />
+                isOwner ? (
+                  <p className="text-xs text-center text-gray-400 py-2">
+                    This is your post — you&apos;ll see messages in <Link href="/messages" className="underline" style={{ color: '#E57200' }}>your inbox</Link>.
+                  </p>
+                ) : (
+                  <>
+                    <ChatButton teamId={t.id} title={t.title} />
+                    <CopyEmailButton email={t.contact_email} label="Or copy email" />
+                  </>
+                )
               ) : (
                 <Link
                   href="/auth/login"

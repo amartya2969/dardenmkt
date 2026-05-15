@@ -64,13 +64,18 @@ export type ConversationStatus = 'pending' | 'accepted' | 'blocked' | 'reported'
 
 export interface Conversation {
   id: string
-  listing_id: string
+  // A conversation is about EITHER a listing OR a team post — never both.
+  // The DB enforces this with a CHECK constraint; in code, exactly one will
+  // be non-null on any given row.
+  listing_id: string | null
+  team_id: string | null
   initiator_id: string
   responder_id: string
   status: ConversationStatus
   created_at: string
   expires_at: string
-  listing?: { id: string; title: string; images: string[] }
+  listing?: { id: string; title: string; images: string[] } | null
+  team?: { id: string; title: string } | null
   initiator?: { full_name: string | null; email: string }
   responder?: { full_name: string | null; email: string }
   messages?: Message[]
