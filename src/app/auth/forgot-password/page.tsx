@@ -131,6 +131,18 @@ export default function ForgotPasswordPage() {
                 </p>
               </div>
 
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 leading-relaxed">
+                <strong>Not in your inbox?</strong> UVA mail filters sometimes quarantine first-time senders.
+                Check your Outlook <strong>Junk Email</strong> folder or your{' '}
+                <a
+                  href="https://security.microsoft.com/quarantine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline font-medium"
+                >quarantine portal</a>
+                {' '}and release the message.
+              </div>
+
               {note && <p className="text-xs text-center font-medium" style={{ color: '#E57200' }}>{note}</p>}
 
               <div className="flex flex-col items-center gap-3 pt-1">
