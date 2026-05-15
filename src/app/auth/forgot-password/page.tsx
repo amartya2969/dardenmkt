@@ -97,12 +97,15 @@ export default function ForgotPasswordPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="computing@virginia.edu"
+                      placeholder="abc1d@virginia.edu"
                       required
                       autoComplete="email"
                       className="w-full pl-9 pr-4 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
                     />
                   </div>
+                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                    Your UVA computing ID email (e.g. <code className="font-mono">abc1d@virginia.edu</code>) or Darden email (e.g. <code className="font-mono">VatsA27@darden.virginia.edu</code>).
+                  </p>
                 </div>
                 <button type="submit" disabled={busy}
                   className="w-full h-11 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60"

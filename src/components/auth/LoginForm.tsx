@@ -59,7 +59,7 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
           <input
             {...register('email')}
             type="email"
-            placeholder="computing@virginia.edu"
+            placeholder="abc1d@virginia.edu  or  VatsA27@darden.virginia.edu"
             autoComplete="email"
             className="w-full pl-9 pr-4 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
           />

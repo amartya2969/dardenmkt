@@ -176,7 +176,7 @@ export function TeamForm({ mode, defaultValues, onSubmit }: TeamFormProps) {
         <label className={labelClass} style={{ color: '#232D4B' }}>Contact Email *</label>
         <input
           type="email"
-          placeholder="abc1@virginia.edu"
+          placeholder="abc1d@virginia.edu"
           className={inputClass}
           {...register('contact_email')}
         />

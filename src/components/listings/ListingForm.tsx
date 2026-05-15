@@ -264,7 +264,7 @@ export function ListingForm({ mode, defaultValues, onSubmit }: ListingFormProps)
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="contact_email">Contact Email *</Label>
-          <Input id="contact_email" type="email" placeholder="abc1@virginia.edu" {...register('contact_email')} />
+          <Input id="contact_email" type="email" placeholder="abc1d@virginia.edu" {...register('contact_email')} />
           {errors.contact_email && <p className="text-sm text-red-600">{errors.contact_email.message}</p>}
         </div>
         <div className="space-y-1.5">

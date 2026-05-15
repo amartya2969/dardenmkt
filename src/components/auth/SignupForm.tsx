@@ -92,11 +92,17 @@ export function SignupForm() {
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="computing@virginia.edu" required autoComplete="email"
+              placeholder="abc1d@virginia.edu" required autoComplete="email"
               className="w-full pl-9 pr-4 h-11 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#232D4B] focus:ring-2 focus:ring-[#232D4B]/10 transition-all"
             />
           </div>
-          <p className="text-[11px] text-gray-400">@virginia.edu or @darden.virginia.edu only</p>
+          <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-2 text-[11px] text-gray-600 leading-relaxed">
+            Use one of:
+            <ul className="mt-1 space-y-0.5">
+              <li>· UVA computing ID: <code className="font-mono">abc1d@virginia.edu</code></li>
+              <li>· Darden email: <code className="font-mono">VatsA27@darden.virginia.edu</code></li>
+            </ul>
+          </div>
         </div>
 
         <button type="submit" disabled={busy}
