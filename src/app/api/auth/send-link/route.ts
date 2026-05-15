@@ -87,9 +87,9 @@ export async function POST(request: Request) {
   }
 
   const data = (await genRes.json()) as {
-    properties?: { hashed_token?: string }
+    properties?: { hashed_token?: string }; hashed_token?: string
   }
-  const tokenHash = data.properties?.hashed_token
+  const tokenHash = data.properties?.hashed_token ?? data.hashed_token
   if (!tokenHash) {
     console.error('[send-link] no hashed_token in response:', data)
     return NextResponse.json({ error: 'No token returned.' }, { status: 500 })
