@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
-import { LinkedInButton } from './LinkedInButton'
-import { MicrosoftButton } from './MicrosoftButton'
 import { Mail, Loader2, MailCheck, ArrowLeft } from 'lucide-react'
 
 /**
@@ -85,18 +83,6 @@ export function SignupForm() {
   // ─── Email stage (default) ───
   if (stage === 'email') return (
     <div className="space-y-3">
-      <MicrosoftButton />
-      <LinkedInButton />
-      <p className="text-center text-[11px] text-gray-400">
-        UVA students: Microsoft is fastest. Outside UVA: use LinkedIn. Both are instant.
-      </p>
-
-      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400 pt-2">
-        <div className="flex-1 h-px bg-gray-200" />
-        Or sign up with email
-        <div className="flex-1 h-px bg-gray-200" />
-      </div>
-
       <form onSubmit={handleSendLink} className="space-y-4">
         {err && <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{err}</div>}
 
