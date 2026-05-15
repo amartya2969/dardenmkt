@@ -5,6 +5,7 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { ArrowLeft, ShoppingBag } from 'lucide-react'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 import { ConversationActions } from './ConversationActions'
+import { computeInitials } from '@/lib/initials'
 import type { Conversation, Message } from '@/types'
 
 export const dynamic = 'force-dynamic'
@@ -74,6 +75,7 @@ export default async function ConversationPage({
     ? (conv.initiator as { full_name: string | null; email: string })
     : (conv.responder as { full_name: string | null; email: string })
   const otherName = other?.full_name ?? other?.email?.split('@')[0] ?? 'Unknown'
+  const otherInitials = computeInitials(other?.full_name ?? null, other?.email ?? null)
 
   const badge = statusLabel(conv.status)
 
@@ -95,7 +97,7 @@ export default async function ConversationPage({
                 className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
                 style={{ backgroundColor: '#232D4B' }}
               >
-                {(otherName[0] ?? '?').toUpperCase()}
+                {otherInitials}
               </div>
               <div>
                 <p className="font-semibold text-sm text-gray-900">{otherName}</p>

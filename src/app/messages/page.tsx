@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Conversation } from '@/types'
 import { formatRelativeTime } from '@/lib/utils'
+import { computeInitials } from '@/lib/initials'
 import { MessageCircle } from 'lucide-react'
 
 export const metadata = { title: 'Messages' }
@@ -28,10 +29,19 @@ export default async function MessagesPage() {
 
   const conversations = (data ?? []) as Conversation[]
 
-  function otherParty(c: Conversation) {
+  function otherPerson(c: Conversation) {
     const isInitiator = c.initiator_id === user!.id
-    const other = isInitiator ? c.responder : c.initiator
-    return other?.full_name ?? other?.email?.split('@')[0] ?? 'Unknown'
+    return isInitiator ? c.responder : c.initiator
+  }
+
+  function otherName(c: Conversation) {
+    const o = otherPerson(c)
+    return o?.full_name ?? o?.email?.split('@')[0] ?? 'Unknown'
+  }
+
+  function otherInitials(c: Conversation) {
+    const o = otherPerson(c)
+    return computeInitials(o?.full_name ?? null, o?.email ?? null)
   }
 
   function lastMessage(c: Conversation) {
@@ -58,12 +68,12 @@ export default async function MessagesPage() {
           className="h-11 w-11 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
           style={{ backgroundColor: '#232D4B' }}
         >
-          {(otherParty(c)[0] ?? '?').toUpperCase()}
+          {otherInitials(c)}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-gray-900 truncate">{otherParty(c)}</p>
+            <p className="text-sm font-semibold text-gray-900 truncate">{otherName(c)}</p>
             {last && (
               <span className="text-[11px] text-gray-400 shrink-0">
                 {formatRelativeTime(last.created_at)}
