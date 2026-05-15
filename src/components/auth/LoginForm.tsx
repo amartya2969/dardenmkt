@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
 import { LinkedInButton } from './LinkedInButton'
+import { MicrosoftButton } from './MicrosoftButton'
 import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -40,9 +41,13 @@ export function LoginForm({ errorParam }: { errorParam?: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      <MicrosoftButton />
       <LinkedInButton />
-      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400">
+      <p className="text-center text-[11px] text-gray-400">
+        UVA accounts: use Microsoft.
+      </p>
+      <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400 pt-1">
         <div className="flex-1 h-px bg-gray-200" />
         Or sign in with email
         <div className="flex-1 h-px bg-gray-200" />

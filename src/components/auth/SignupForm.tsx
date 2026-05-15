@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { isAllowedUvaEmail, ALLOWED_EMAIL_HINT } from '@/lib/email-domain'
 import { LinkedInButton } from './LinkedInButton'
+import { MicrosoftButton } from './MicrosoftButton'
 import { Mail, User as UserIcon, Lock, Eye, EyeOff, Loader2, MailCheck, ArrowLeft, Clock, AlertCircle } from 'lucide-react'
 
 /**
@@ -91,10 +92,11 @@ export function SignupForm() {
 
   // ─── Form ───
   if (stage === 'form') return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      <MicrosoftButton />
       <LinkedInButton />
       <p className="text-center text-[11px] text-gray-400">
-        Fastest way in — works for everyone, no UVA email needed.
+        UVA students: use Microsoft. Anyone else: use LinkedIn. Both are instant.
       </p>
 
       <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400 pt-2">
